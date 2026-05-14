@@ -19,7 +19,7 @@ A lo largo de estos módulos, adquirirás experiencia práctica y conocimientos 
 - 🚧 **Aislamiento de red:** Restringir la comunicación entre Pods y prevenir el temido movimiento lateral de los atacantes mediante `NetworkPolicies`.
 - 🚨 **Detección en tiempo de ejecución (Run-time Security):** Una introducción práctica a la monitorización y detección de comportamientos anómalos usando `Falco`.
 - 🔑 **Gestión Segura de Secretos (GitOps):** Aprender a proteger credenciales y datos sensibles en repositorios de código utilizando `Sealed Secrets`.
-
+- 🔒 **Cifrado en Reposo (Encryption at Rest):** Configurar el cifrado de datos directamente en el etcd para proteger los recursos de la API contra accesos no autorizados al almacenamiento.
 ---
 
 ## 📁 Estructura del Repositorio
@@ -33,7 +33,8 @@ blindando-kubernetes/
 ├── 📂 03-rbac-minimum-privilege/ # Diseño seguro de Roles y asignaciones (RoleBindings)
 ├── 📂 04-network-policies/       # Segmentación y reglas de tráfico entre Pods
 ├── 📂 05-falco-overview/         # Monitoreo de seguridad y alertas en tiempo real
-└── 📂 06-secrets-sealed/         # Gestión segura de secretos para entornos GitOps
+├── 📂 06-secrets-sealed/         # Gestión segura de secretos para entornos GitOps
+└── 📂 07-encryption-at-rest/     # Cifrado de datos en reposo a nivel de la API y etcd
 ```
 
 > 💡 **Tip de Aprendizaje:** Cada directorio contiene su propio archivo `README.md` detallado. En ellos encontrarás explicaciones claras, los comandos que debes ejecutar y todos los manifiestos YAML necesarios para resolver los escenarios planteados.
