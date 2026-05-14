@@ -28,10 +28,20 @@ En este ejercicio, configuraremos el cifrado de datos en reposo utilizando el pr
    ```
 
 2. Verifica cómo se almacena en `etcd` obteniendo los datos directamente de la base de datos. 
-   *(Nota: Necesitarás acceso a `etcdctl` y a los certificados de etcd. Si estás en `minikube` o `kubeadm`, puedes ejecutar un `kubectl exec` dentro del pod de etcd o ejecutarlo en el propio nodo)*:
+
+   > **Requisito previo:** Necesitarás la herramienta `etcdctl`. Si no la tienes instalada en tu nodo de control plane, puedes descargarla y configurarla rápidamente con los siguientes comandos:
+   > ```bash
+   > cd /tmp
+   > export RELEASE=$(curl -s https://api.github.com/repos/etcd-io/etcd/releases/latest | grep tag_name | cut -d '"' -f 4)
+   > wget https://github.com/etcd-io/etcd/releases/download/${RELEASE}/etcd-${RELEASE}-linux-amd64.tar.gz
+   > tar xvf etcd-${RELEASE}-linux-amd64.tar.gz ; cd etcd-${RELEASE}-linux-amd64
+   > sudo mv etcd etcdctl /usr/local/bin/
+   > ```
+
+   Ahora, ejecuta el siguiente comando para consultar el valor desde etcd *(ajusta las rutas de los certificados si es necesario)*:
    ```bash
    # Comando genérico, ajusta los certificados según tu entorno
-   ETCDCTL_API=3 etcdctl \
+   sudo ETCDCTL_API=3 etcdctl \
      --cacert=/etc/kubernetes/pki/etcd/ca.crt \
      --cert=/etc/kubernetes/pki/etcd/server.crt \
      --key=/etc/kubernetes/pki/etcd/server.key \
@@ -118,7 +128,7 @@ Guarda el archivo. El proceso `kubelet` detectará inmediatamente el cambio en e
 
 2. Verifica cómo se almacena en `etcd` ahora (usando el mismo comando del Paso 1, pero apuntando al nuevo secreto):
    ```bash
-   ETCDCTL_API=3 etcdctl \
+   sudo ETCDCTL_API=3 etcdctl \
      --cacert=/etc/kubernetes/pki/etcd/ca.crt \
      --cert=/etc/kubernetes/pki/etcd/server.crt \
      --key=/etc/kubernetes/pki/etcd/server.key \
