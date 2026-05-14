@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ns-success-pod
+  namespace: backend
+spec:
+  containers:
+  - name: app
+    image: alpine
+    command: ["sleep", "3600"]
+    envFrom:
+    - secretRef:
+        name: db-creds-api # Note the changed name!

@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-insecure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-insecure
+  template:
+    metadata:
+      labels:
+        app: demo-insecure
+    spec:
+      containers:
+        - name: demo
+          image: nginx:1.21
+          ports:
+            - containerPort: 80
+          # Intencionalmente sin securityContext ni recursos definidos

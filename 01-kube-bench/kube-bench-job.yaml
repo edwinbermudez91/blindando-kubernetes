@@ -1,0 +1,59 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kube-bench
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: kube-bench
+    spec:
+      hostPID: true
+      restartPolicy: Never
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: Exists
+      containers:
+        - name: kube-bench
+          image: aquasec/kube-bench@sha256:38cfce2c7b770ea929dca93e7e30c035e26116373d69383cd6eb2e504b100f96 # kube-bench:latest
+          command:
+            - /usr/local/bin/kube-bench
+          args:
+            - run
+            - --targets
+            - master,node
+          volumeMounts:
+            - name: var-lib-etcd
+              mountPath: /var/lib/etcd
+              readOnly: true
+            - name: var-lib-kubelet
+              mountPath: /var/lib/kubelet
+              readOnly: true
+            - name: etc-systemd
+              mountPath: /etc/systemd
+              readOnly: true
+            - name: etc-kubernetes
+              mountPath: /etc/kubernetes
+              readOnly: true
+      volumes:
+        - name: var-lib-etcd
+          hostPath:
+            path: /var/lib/etcd
+        - name: var-lib-kubelet
+          hostPath:
+            path: /var/lib/kubelet
+        - name: etc-systemd
+          hostPath:
+            path: /etc/systemd
+        - name: etc-kubernetes
+          hostPath:
+            path: /etc/kubernetes
