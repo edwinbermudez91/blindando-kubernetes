@@ -16,12 +16,31 @@
 ## ⚙️ Prerrequisitos
 
 Antes de comenzar, asegúrate de tener lo siguiente:
-- [Trivy](https://aquasecurity.github.io/trivy/) instalado en la misma máquina desde la que ejecutas `kubectl`.
+- **[Trivy CLI](https://aquasecurity.github.io/trivy/)** instalado en la misma máquina desde la que ejecutas `kubectl`. Puedes instalar la versión v0.70.0 rápidamente con este comando:
+  ```bash
+  curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.70.0
+  ```
 - Un clúster de Kubernetes activo.
 - Haber creado el namespace de laboratorio (`security-lab`):
   ```bash
   kubectl create namespace security-lab
   ```
+- **(Opcional pero recomendado) [Helm](https://helm.sh/docs/intro/install/)** instalado para desplegar Trivy Operator.
+
+### Instalación de Trivy Operator
+Trivy Operator se ejecuta de forma continua en tu clúster para encontrar vulnerabilidades y malas configuraciones de forma automática, generando Custom Resources (CRDs) con los resultados. Puedes revisar su [documentación oficial aquí](https://github.com/aquasecurity/trivy-operator).
+
+Para instalarlo usando Helm:
+```bash
+# Agregar el repositorio de Helm de Aqua Security
+helm repo add aqua https://aquasecurity.github.io/helm-charts/
+helm repo update
+
+# Instalar Trivy Operator en el namespace trivy-system
+helm install trivy-operator aqua/trivy-operator \
+  --namespace trivy-system \
+  --create-namespace
+```
 
 ---
 
@@ -70,6 +89,47 @@ kubectl apply -f secure-deployment.yaml -n security-lab
 
 ### 6️⃣ Verificación Final (Opcional)
 Vuelve a ejecutar el escaneo del paso 3. Deberías notar una reducción drástica (idealmente a cero) de las alertas de configuración y vulnerabilidades críticas.
+
+### 7️⃣ Uso de Trivy Operator (Escaneo Continuo) 🔄
+Si instalaste Trivy Operator en los prerrequisitos, este automáticamente escaneará los recursos desplegados y generará Custom Resource Definitions (CRDs) con los reportes, sin necesidad de ejecutar comandos manuales de escaneo.
+
+1. **Asegúrate de tener la aplicación vulnerable desplegada:**
+   Si la borraste en el paso anterior, vuelve a crearla:
+   ```bash
+   kubectl apply -f insecure-deployment.yaml -n security-lab
+   ```
+   *Nota: El operador puede tardar unos segundos en detectar el nuevo pod y generar el reporte.*
+
+2. **Validar los reportes de vulnerabilidades generados:**
+   El operador crea un `VulnerabilityReport` por cada ReplicaSet/Pod. Lista los reportes y observa el resumen de severidades en las columnas:
+   ```bash
+   kubectl get vulnerabilityreports -n security-lab -o wide
+   ```
+
+3. **Ejercicio: Extraer las vulnerabilidades CRÍTICAS**
+   Vamos a analizar el reporte generado para el pod vulnerable. Primero, guarda el nombre del reporte en una variable de entorno:
+   ```bash
+   # Sustituye <NOMBRE_DEL_REPORTE> con el nombre que obtuviste en el comando anterior
+   export REP_NAME=<NOMBRE_DEL_REPORTE>
+   ```
+   
+   Ahora, usa `jsonpath` para extraer e imprimir únicamente los IDs de las vulnerabilidades catalogadas como críticas:
+   ```bash
+   kubectl get vulnerabilityreport $REP_NAME -n security-lab \
+     -o jsonpath='{range .report.vulnerabilities[?(@.severity=="CRITICAL")]}{.vulnerabilityID}{"\n"}{end}'
+   ```
+
+4. **Validar los reportes de configuraciones (misconfigurations):**
+   De forma similar a las vulnerabilidades de imagen, el operador evalúa los manifiestos de Kubernetes en busca de malas prácticas.
+   ```bash
+   kubectl get configauditreports -n security-lab -o wide
+   ```
+
+5. **Ver los detalles completos de un reporte:**
+   Puedes visualizar cualquiera de los reportes en formato YAML para leer las recomendaciones exactas de remediación que ofrece Trivy.
+   ```bash
+   kubectl get configauditreport <NOMBRE_DEL_REPORTE_CONFIG> -n security-lab -o yaml
+   ```
 
 ---
 

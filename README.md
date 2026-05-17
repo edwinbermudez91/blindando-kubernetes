@@ -51,7 +51,7 @@ Para aprovechar al máximo estos laboratorios y no tener bloqueos técnicos, ase
 2. **Herramientas Cliente:**
    - La utilidad de línea de comandos `kubectl` instalada y correctamente autenticada contra tu clúster.
 3. **Privilegios:**
-   - Se recomienda encarecidamente contar con privilegios elevados (equivalente a `cluster-admin`) para poder crear y destruir Namespaces, ServiceAccounts, configuraciones RBAC, Jobs y políticas de red sin fricciones.
+   - Se recomienda contar con privilegios elevados (equivalente a `cluster-admin`) para poder crear y destruir Namespaces, ServiceAccounts, configuraciones RBAC, Jobs y políticas de red sin fricciones.
 
 ---
 
