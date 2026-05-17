@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trivy-operator-policies-config
+  namespace: trivy-system
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/managed-by: manual
+data:
+  # Política personalizada que sobrescribe el check KSV-0125 del operador.
+  # Define los registros de confianza permitidos en el clúster.
+  # Ajusta la lista de prefijos según los registros aprobados en tu organización.
+  policy.trusted_registries.kinds: "Pod"
+  policy.trusted_registries.rego: |
+    package trivyoperator.policy.k8s.custom
+
+    import data.lib.result
+    import future.keywords.in
+
+    __rego_metadata__ := {
+      "id":          "CUSTOM-001",
+      "title":       "Restrict images to trusted registries",
+      "severity":    "MEDIUM",
+      "description": "Todos los contenedores deben usar imágenes únicamente desde registros de confianza definidos.",
+      "type":        "Kubernetes Security Check",
+    }
+
+    __rego_input__ := {
+      "combine": false,
+      "selector": [{"type": "kubernetes"}],
+    }
+
+    # Lista de prefijos de registros permitidos
+    trusted_registries := {
+      "docker.io/",
+      "ghcr.io/",
+      "gcr.io/",
+      "registry.k8s.io/",
+    }
+
+    deny[res] {
+      input.kind == "Pod"
+      some container in input.spec.containers
+      image := container.image
+      # Genera violation solo si ningún prefijo de confianza coincide
+      not any_trusted(image)
+      msg := sprintf(
+        "Imagen '%v' proviene de un registro no autorizado. Registros permitidos: docker.io, ghcr.io, gcr.io, registry.k8s.io.",
+        [image]
+      )
+      res := result.new(msg, container)
+    }
+
+    any_trusted(image) {
+      some prefix in trusted_registries
+      startswith(image, prefix)
+    }

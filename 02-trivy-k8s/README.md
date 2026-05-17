@@ -81,7 +81,18 @@ Examina detalladamente la salida del comando anterior. Busca lo siguiente:
 Es hora de corregir los problemas encontrados.
 
 1. Abre y revisa el archivo `secure-deployment.yaml`. Nota las diferencias respecto al manifiesto inseguro (uso de `securityContext`, recursos definidos, etc.).
-2. Aplica la versión segura del Deployment:
+2. **Restricción de Registros de Confianza (Trusted Registries):**
+   * El manifiesto seguro utiliza un nombre de imagen completamente calificado (FQIN) que especifica explícitamente el dominio de confianza: `docker.io/nginxinc/nginx-unprivileged:1.21-alpine` en lugar del valor implícito `nginxinc/...`.
+   * En entornos de producción, es una buena práctica forzar que las imágenes provengan únicamente de dominios autorizados (por ejemplo, registros privados o repositorios de confianza) para prevenir ataques de suplantación de identidad (spoofing) o descargas accidentales de software malicioso.
+   * Se incluye un archivo `image-policy.yaml` con una política de **Kyverno** que audita o bloquea cualquier pod que intente utilizar imágenes fuera de los registros autorizados (`docker.io`, `ghcr.io`, `gcr.io`):
+     ```bash
+     kubectl apply -f image-policy.yaml
+     ```
+   * Además, se incluye el archivo `trivy-trusted-registries-policy.yaml`, que configura el **Trivy Operator** para que reconozca los registros de confianza mediante una política Rego personalizada y deje de reportar la desconfiguración _"Container uses an image from an untrusted registry"_:
+     ```bash
+     kubectl apply -f trivy-trusted-registries-policy.yaml -n trivy-system
+     ```
+3. Aplica la versión segura del Deployment:
 
 ```bash
 kubectl apply -f secure-deployment.yaml -n security-lab
@@ -131,13 +142,41 @@ Si instalaste Trivy Operator en los prerrequisitos, este automáticamente escane
    kubectl get configauditreport <NOMBRE_DEL_REPORTE_CONFIG> -n security-lab -o yaml
    ```
 
+6. **Visualización Gráfica con Trivy Operator Dashboard (Opcional):**
+   Si prefieres una interfaz gráfica interactiva en lugar de consultar la terminal, puedes instalar **Trivy Operator Dashboard**, una herramienta de la comunidad que te permite visualizar cómodamente todos los reportes de vulnerabilidades, auditorías de configuración, secretos expuestos y evaluaciones de RBAC del clúster.
+
+   Instala el dashboard en tu clúster usando Helm:
+   ```bash
+   helm install trivy-operator-dashboard oci://ghcr.io/raoulx24/charts/trivy-operator-dashboard \
+     --version 1.8.0 \
+     --namespace trivy-system
+   ```
+
+   Como el servicio se crea por defecto de tipo `ClusterIP` en el puerto `8900`, realiza un reenvío de puertos (port-forward) para poder acceder localmente:
+   ```bash
+   kubectl port-forward service/trivy-operator-dashboard 8900:8900 -n trivy-system --address 0.0.0.0
+   ```
+
+   Abre tu navegador e ingresa a:
+   👉 **[http://localhost:8900](http://localhost:8900)**
+
+   ¡Listo! Explora la interfaz gráfica para auditar visualmente el estado de seguridad de tu namespace `security-lab` y el resto de recursos del clúster.
+
 ---
 
 ## 🧹 Limpieza del Laboratorio
 
-Para mantener tu clúster ordenado, elimina los recursos creados durante este ejercicio:
+Para mantener tu clúster ordenado y liberar recursos, elimina los despliegues de prueba y los componentes instalados durante este ejercicio:
 
 ```bash
+# Eliminar despliegues y políticas del laboratorio
 kubectl delete -f secure-deployment.yaml -n security-lab --ignore-not-found
 kubectl delete -f insecure-deployment.yaml -n security-lab --ignore-not-found
+kubectl delete -f image-policy.yaml --ignore-not-found
+kubectl delete -f trivy-trusted-registries-policy.yaml -n trivy-system --ignore-not-found
+
+# (Opcional) Desinstalar Trivy Operator Dashboard y el operador
+helm uninstall trivy-operator-dashboard -n trivy-system
+helm uninstall trivy-operator -n trivy-system
+kubectl delete namespace trivy-system --ignore-not-found
 ```
