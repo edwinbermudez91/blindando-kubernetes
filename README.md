@@ -20,6 +20,7 @@ A lo largo de estos módulos, adquirirás experiencia práctica y conocimientos 
 - 🚨 **Detección en tiempo de ejecución (Run-time Security):** Una introducción práctica a la monitorización y detección de comportamientos anómalos usando `Falco`.
 - 🔑 **Gestión Segura de Secretos (GitOps):** Aprender a proteger credenciales y datos sensibles en repositorios de código utilizando `Sealed Secrets`.
 - 🔒 **Cifrado en Reposo (Encryption at Rest):** Configurar el cifrado de datos directamente en el etcd para proteger los recursos de la API contra accesos no autorizados al almacenamiento.
+- 🌐 **Gateway API:** Implementar el estándar moderno de gestión de tráfico de entrada con separación de responsabilidades, seguridad por roles y soporte nativo de protocolos usando `Envoy Gateway`.
 ---
 
 ## 📁 Estructura del Repositorio
@@ -34,7 +35,8 @@ blindando-kubernetes/
 ├── 📂 04-network-policies/       # Segmentación y reglas de tráfico entre Pods
 ├── 📂 05-falco-overview/         # Monitoreo de seguridad y alertas en tiempo real
 ├── 📂 06-secrets-sealed/         # Gestión segura de secretos para entornos GitOps
-└── 📂 07-encryption-at-rest/     # Cifrado de datos en reposo a nivel de la API y etcd
+├── 📂 07-encryption-at-rest/     # Cifrado de datos en reposo a nivel de la API y etcd
+└── 📂 08-gateway-api/            # Gestión moderna de tráfico de entrada con Gateway API
 ```
 
 > 💡 **Tip de Aprendizaje:** Cada directorio contiene su propio archivo `README.md` detallado. En ellos encontrarás explicaciones claras, los comandos que debes ejecutar y todos los manifiestos YAML necesarios para resolver los escenarios planteados.

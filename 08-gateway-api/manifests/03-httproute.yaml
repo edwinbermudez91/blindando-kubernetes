@@ -1,0 +1,30 @@
+# -------------------------------------------------------------------
+# 03-httproute.yaml
+# Define las reglas de enrutamiento HTTP que conectan el Gateway
+# con el Service de la aplicación de demostración.
+# -------------------------------------------------------------------
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: demo-app-route
+  namespace: envoy-gateway-system
+spec:
+  # Referencia al Gateway que debe procesar este tráfico
+  parentRefs:
+    - name: gateway-lab
+      namespace: envoy-gateway-system
+
+  # Opcional: hostname(s) que debe coincidir (funciona sin hostname en labs locales)
+  # hostnames:
+  #   - "demo.example.com"
+
+  rules:
+    # Regla 1: Enrutar el prefijo raíz "/" a la aplicación demo
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: demo-app    # Nombre del Service definido en 02-demo-app.yaml
+          port: 80
+          weight: 100

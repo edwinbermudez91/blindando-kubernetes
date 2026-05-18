@@ -1,0 +1,51 @@
+# -------------------------------------------------------------------
+# 01-gateway.yaml
+# Define el EnvoyProxy (configuración del data plane), el GatewayClass
+# (registro del controlador) y el Gateway (punto de entrada al clúster).
+# -------------------------------------------------------------------
+
+# EnvoyProxy configura cómo Envoy Gateway despliega el proxy de datos.
+# Aquí se define que el Service del proxy sea de tipo NodePort (en lugar
+# del tipo LoadBalancer por defecto), ideal para entornos de laboratorio
+# que no cuentan con un controlador de balanceador de carga externo.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: custom-proxy-config
+  namespace: envoy-gateway-system
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: NodePort
+---
+# El GatewayClass vincula los recursos Gateway con el controlador
+# Envoy Gateway. Es necesario crearlo manualmente ya que el Helm chart
+# solo despliega el controlador, no el recurso GatewayClass.
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: eg
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  parametersRef:
+    group: gateway.envoyproxy.io
+    kind: EnvoyProxy
+    name: custom-proxy-config
+    namespace: envoy-gateway-system
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: gateway-lab
+  namespace: envoy-gateway-system
+spec:
+  gatewayClassName: eg
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
