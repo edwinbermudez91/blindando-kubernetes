@@ -48,4 +48,4 @@ spec:
       port: 80
       allowedRoutes:
         namespaces:
-          from: Same
+          from: All                       # Permite HTTPRoutes desde cualquier namespace

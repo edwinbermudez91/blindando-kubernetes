@@ -34,6 +34,21 @@
 [HTTPRoute]     →  Define las reglas de enrutamiento hacia los Services
 ```
 
+### Separación de Namespaces en este laboratorio
+
+```
+envoy-gateway-system/          ← Namespace de INFRAESTRUCTURA (equipo de plataforma)
+├── EnvoyProxy                 ← Configuración del proxy (NodePort)
+├── GatewayClass               ← Registro del controlador
+├── Gateway                    ← Punto de entrada al clúster
+└── Pods del controlador       ← envoy-gateway + envoy proxy
+
+demo-app/                      ← Namespace de APLICACIÓN (equipo de desarrollo)
+├── Deployment                 ← Aplicación Nginx con hardening
+├── Service                    ← ClusterIP expone la app internamente
+└── HTTPRoute                  ← Regla de enrutamiento (cross-namespace)
+```
+
 ---
 
 ## ⚙️ Prerrequisitos
@@ -47,11 +62,12 @@
 
 ## 🛠️ Instrucciones Paso a Paso
 
-### 1️⃣ Preparar el Namespace del Laboratorio
+### 1️⃣ Preparar los Namespaces
 
-Para este laboratorio, desplegaremos todos los recursos en el namespace **`envoy-gateway-system`** (donde también residirá el controlador Envoy Gateway). Esto simplifica el laboratorio y permite a Envoy Gateway gestionar las rutas y el tráfico de forma centralizada sin configuraciones multi-namespace complejas. 
+Este laboratorio utiliza **dos namespaces separados** para demostrar la separación de responsabilidades:
 
-*Nota: Este namespace se creará automáticamente en el Paso 2 al instalar el controlador con Helm.*
+- **`envoy-gateway-system`**: Infraestructura de red (controlador, Gateway). Se crea automáticamente al instalar Envoy Gateway.
+- **`demo-app`**: Aplicación de demostración (Deployment, Service, HTTPRoute). Se crea automáticamente al aplicar `02-demo-app.yaml`.
 
 ### 2️⃣ Instalar Envoy Gateway (Controlador + CRDs)
 
@@ -92,11 +108,11 @@ grpcroutes.gateway.networking.k8s.io
 
 ### 3️⃣ Crear el GatewayClass y el Gateway
 
-El manifiesto `01-gateway.yaml` crea tres recursos:
+El manifiesto `01-gateway.yaml` crea tres recursos en el namespace de infraestructura:
 
 - **`EnvoyProxy`**: Configura el proxy de datos de Envoy para usar un Service de tipo **NodePort** (en lugar del `LoadBalancer` por defecto), ideal para entornos de laboratorio sin proveedor de balanceo de carga.
 - **`GatewayClass`**: Registra el controlador Envoy Gateway como implementación disponible y referencia la configuración del `EnvoyProxy`.
-- **`Gateway`**: Define el punto de entrada al clúster. En este laboratorio aceptará tráfico HTTP en el puerto 80, solo para rutas del namespace `envoy-gateway-system`.
+- **`Gateway`**: Define el punto de entrada al clúster. Acepta tráfico HTTP en el puerto 80 y permite `HTTPRoutes` desde **cualquier namespace** (`allowedRoutes.namespaces.from: All`).
 
 ```bash
 kubectl apply -f manifests/01-gateway.yaml
@@ -129,7 +145,7 @@ Deberías ver dos pods: el controlador `envoy-gateway` y el proxy de datos `envo
 
 ### 4️⃣ Desplegar la Aplicación de Demostración
 
-Despliega el servidor web de prueba. Este Deployment ya aplica las buenas prácticas de *hardening* vistas en el módulo 02 (`readOnlyRootFilesystem`, `seccompProfile`, `automountServiceAccountToken: false`, etc.):
+El manifiesto `02-demo-app.yaml` crea el namespace `demo-app` y despliega la aplicación dentro de él. Este Deployment aplica las buenas prácticas de *hardening* vistas en el módulo 02 (`readOnlyRootFilesystem`, `seccompProfile`, `automountServiceAccountToken: false`, etc.):
 
 ```bash
 kubectl apply -f manifests/02-demo-app.yaml
@@ -138,13 +154,13 @@ kubectl apply -f manifests/02-demo-app.yaml
 Verifica que el Pod esté corriendo:
 
 ```bash
-kubectl get pods -n envoy-gateway-system
-kubectl get service demo-app -n envoy-gateway-system
+kubectl get pods -n demo-app
+kubectl get service demo-app -n demo-app
 ```
 
 ### 5️⃣ Crear el HTTPRoute
 
-El `HTTPRoute` conecta el `Gateway` con el `Service` de la aplicación, definiendo la regla de enrutamiento:
+El `HTTPRoute` se despliega en el namespace `demo-app` (junto a la aplicación), pero referencia al `Gateway` en `envoy-gateway-system`. Este **enrutamiento cross-namespace** es una de las ventajas clave de la Gateway API:
 
 ```bash
 kubectl apply -f manifests/03-httproute.yaml
@@ -153,7 +169,7 @@ kubectl apply -f manifests/03-httproute.yaml
 Verifica el estado del HTTPRoute:
 
 ```bash
-kubectl get httproute -n envoy-gateway-system
+kubectl get httproute -n demo-app
 ```
 
 Revisa las columnas `ACCEPTED` y `RECONCILED`. Ambas deben estar en `True`.
@@ -161,7 +177,7 @@ Revisa las columnas `ACCEPTED` y `RECONCILED`. Ambas deben estar en `True`.
 Para ver los detalles del estado de resolución de los backends:
 
 ```bash
-kubectl describe httproute demo-app-route -n envoy-gateway-system
+kubectl describe httproute demo-app-route -n demo-app
 ```
 
 ### 6️⃣ Probar el Enrutamiento 🧪
@@ -188,26 +204,26 @@ Deberías recibir una respuesta HTTP 200 con la página de bienvenida de Nginx. 
 
 ### 7️⃣ Ejercicio: Separación de Roles con RBAC 🔐
 
-Uno de los beneficios clave de la Gateway API es la separación de responsabilidades. Observa cómo se puede implementar con RBAC nativo:
+Uno de los beneficios clave de la Gateway API es la separación de responsabilidades. Ahora que los recursos están divididos en dos namespaces, observa cómo funciona en la práctica:
 
-- Los **equipos de plataforma** gestionan los `GatewayClass` y `Gateway`.
-- Los **equipos de aplicación** solo pueden gestionar `HTTPRoute` en su propio namespace.
+- Los **equipos de plataforma** gestionan los `GatewayClass` y `Gateway` en `envoy-gateway-system`.
+- Los **equipos de aplicación** solo pueden gestionar `HTTPRoute` en su propio namespace `demo-app`.
 
 Revisa quién puede hacer qué sobre los recursos de red:
 
 ```bash
-# ¿Puede el default ServiceAccount crear un Gateway?
+# ¿Puede un SA de la app crear un Gateway en el namespace de infraestructura? (debería ser NO)
 kubectl auth can-i create gateways \
   --namespace envoy-gateway-system \
-  --as system:serviceaccount:envoy-gateway-system:default
+  --as system:serviceaccount:demo-app:default
 
-# ¿Puede crear un HTTPRoute?
+# ¿Puede crear un HTTPRoute en su propio namespace? (debería ser SÍ con permisos adecuados)
 kubectl auth can-i create httproutes \
-  --namespace envoy-gateway-system \
-  --as system:serviceaccount:envoy-gateway-system:default
+  --namespace demo-app \
+  --as system:serviceaccount:demo-app:default
 ```
 
-> **🔍 Reflexión:** En el modelo `Ingress` clásico, no había forma nativa de separar quién podía modificar los puntos de entrada del clúster de quién definía las rutas. Con la Gateway API, puedes otorgar permisos de `HTTPRoute` a los equipos de app sin darles acceso al `Gateway` de infraestructura.
+> **🔍 Reflexión:** En el modelo `Ingress` clásico, no había forma nativa de separar quién podía modificar los puntos de entrada del clúster de quién definía las rutas. Con la Gateway API, puedes otorgar permisos de `HTTPRoute` a los equipos de app sin darles acceso al `Gateway` de infraestructura. Este laboratorio demuestra exactamente esa separación con dos namespaces independientes.
 
 ---
 
@@ -220,6 +236,9 @@ Elimina los recursos del laboratorio en orden:
 kubectl delete -f manifests/03-httproute.yaml --ignore-not-found
 kubectl delete -f manifests/02-demo-app.yaml --ignore-not-found
 kubectl delete -f manifests/01-gateway.yaml --ignore-not-found
+
+# Eliminar el namespace de la aplicación
+kubectl delete namespace demo-app --ignore-not-found
 
 # (Opcional) Desinstalar Envoy Gateway (controlador + CRDs) y limpiar el namespace
 helm uninstall eg -n envoy-gateway-system
