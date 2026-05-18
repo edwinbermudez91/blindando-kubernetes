@@ -1,12 +1,12 @@
 # 🌐 Lab 08: Kubernetes Gateway API — El Sucesor Moderno del Ingress
 
-¡Bienvenido al laboratorio de **Gateway API**! 🚀 En este módulo aprenderás a instalar y configurar la **Kubernetes Gateway API**, la evolución oficial del recurso `Ingress`. Esta API permite gestionar el tráfico de entrada al clúster de forma estandarizada, segura y con una clara separación de responsabilidades entre equipos de plataforma y de aplicación.
+¡Bienvenido al laboratorio de **Gateway API**! 🚀 En este módulo aprenderás a instalar y configurar **Kubernetes Gateway API**, la evolución oficial del recurso `Ingress`. Esta API permite gestionar el tráfico de entrada al clúster de forma estandarizada, segura y con una clara separación de responsabilidades entre equipos de plataforma y de aplicación.
 
 ---
 
 ## 🎯 Objetivos de Aprendizaje
 
-- Comprender por qué la Gateway API reemplaza al `Ingress` como estándar oficial de Kubernetes.
+- Comprender por qué el Gateway API reemplaza al `Ingress` como estándar oficial de Kubernetes.
 - Instalar los **CRDs de Gateway API** y el controlador **Envoy Gateway**.
 - Crear y relacionar los tres recursos fundamentales: `GatewayClass`, `Gateway` y `HTTPRoute`.
 - Aplicar los principios de seguridad (hardening) aprendidos en módulos anteriores a los workloads del laboratorio.
