@@ -1,4 +1,4 @@
-# Lab 01 · Auditoría CIS con kube-bench
+# Lab 02 · Auditoría CIS con kube-bench
 
 ## ¿Qué es kube-bench?
 

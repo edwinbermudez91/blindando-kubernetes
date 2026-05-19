@@ -1,4 +1,4 @@
-# 🛡️ Lab 02: Escaneo de Clúster y Workloads con Trivy
+# 🛡️ Lab 03: Escaneo de Clúster y Workloads con Trivy
 
 ¡Bienvenido al laboratorio de escaneo de vulnerabilidades y configuraciones! 🚀 En este laboratorio aprenderás a utilizar **Trivy**, una potente herramienta open-source, para escanear tu clúster de Kubernetes y un Deployment de prueba. El objetivo es identificar vulnerabilidades de software y malas prácticas de configuración (misconfigurations) antes de que un atacante pueda explotarlas.
 

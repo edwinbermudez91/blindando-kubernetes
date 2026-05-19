@@ -1,4 +1,4 @@
-# 🔐 Lab 03: Control de Acceso Basado en Roles (RBAC) y Mínimo Privilegio
+# 🔐 Lab 04: Control de Acceso Basado en Roles (RBAC) y Mínimo Privilegio
 
 ¡Adéntrate en el mundo de la autorización en Kubernetes! 🧭 En este laboratorio pondremos en práctica el principio de **Mínimo Privilegio**. Crearás un **Role** con permisos estrictamente de solo lectura (`read-only`) para un namespace específico y lo asignarás a una **ServiceAccount** mediante un **RoleBinding**.
 
@@ -42,7 +42,7 @@ kubectl apply -f ns-readonly-rolebinding.yaml
 ```
 
 ### 4️⃣ Poblar el Namespace con Datos
-Para poder probar los permisos de lectura, necesitamos recursos en el namespace. Puedes desplegar algunos pods y servicios de prueba, por ejemplo usando el Deployment inseguro del Lab 02 o cualquier imagen básica (como Nginx).
+Para poder probar los permisos de lectura, necesitamos recursos en el namespace. Puedes desplegar algunos pods y servicios de prueba, por ejemplo usando el Deployment inseguro del Lab 03 o cualquier imagen básica (como Nginx).
 
 ```bash
 # Ejemplo rápido para crear un Pod de prueba

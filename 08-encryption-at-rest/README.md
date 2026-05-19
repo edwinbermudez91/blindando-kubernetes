@@ -1,4 +1,4 @@
-# Módulo 07: Cifrado de Datos en Reposo (Encryption at Rest)
+# 🔒 Lab 08: Cifrado de Datos en Reposo (Encryption at Rest)
 
 Este módulo cubre la configuración del cifrado de datos en reposo para los recursos almacenados en la API de Kubernetes (como los Secrets), basándose en la [documentación oficial de Kubernetes](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/).
 

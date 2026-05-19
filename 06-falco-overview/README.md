@@ -1,4 +1,4 @@
-# 🦅 Lab 05: Detección de Amenazas en Tiempo de Ejecución con Falco
+# 🦅 Lab 06: Detección de Amenazas en Tiempo de Ejecución con Falco
 
 ¡Llegamos a la fase de monitoreo y respuesta! 🚨 En esta demostración veremos **Falco** en acción. Falco es considerado el "Cámara de Seguridad" de Kubernetes: analiza las llamadas al sistema (syscalls) en tiempo real para detectar comportamientos anómalos o maliciosos en tus contenedores.
 

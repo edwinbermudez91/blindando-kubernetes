@@ -1,4 +1,4 @@
-# 🔒 Lab 06: Gestión Segura de Secretos con Bitnami Sealed Secrets
+# 🔒 Lab 07: Gestión Segura de Secretos con Bitnami Sealed Secrets
 
 ¡Bienvenidos al laboratorio de GitOps y Seguridad! 🚀 En esta sesión aprenderemos cómo manejar secretos en Kubernetes de forma profesional. 
 

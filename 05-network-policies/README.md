@@ -1,4 +1,4 @@
-# 🕸️ Lab 04: Aislamiento de Red con NetworkPolicies
+# 🕸️ Lab 05: Aislamiento de Red con NetworkPolicies
 
 ¡Bienvenido a la defensa en profundidad a nivel de red! 🧱 Por defecto, los pods en Kubernetes pueden comunicarse libremente entre sí. En este laboratorio, desplegaremos un escenario compuesto por un `frontend`, un `backend` y un pod malicioso (`attacker`). Utilizaremos **NetworkPolicies** para bloquear el tráfico no deseado y aplicar el principio de *Zero Trust* en nuestra red.
 

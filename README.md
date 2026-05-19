@@ -13,6 +13,7 @@ Este repositorio está diseñado como una guía interactiva y paso a paso para q
 
 A lo largo de estos módulos, adquirirás experiencia práctica y conocimientos técnicos en:
 
+- 🌐 **Gateway API:** Implementar el estándar moderno de gestión de tráfico de entrada con separación de responsabilidades, seguridad por roles y soporte nativo de protocolos usando `Envoy Gateway`.
 - 🛡️ **Auditoría de cumplimiento:** Evaluar los componentes de tu clúster contra los estrictos estándares de seguridad CIS (Center for Internet Security) utilizando `kube-bench`.
 - 🔍 **Escaneo de vulnerabilidades:** Detectar configuraciones inseguras y vulnerabilidades conocidas en tus cargas de trabajo utilizando `Trivy`.
 - 🔐 **Control de Accesos (RBAC):** Diseñar e implementar políticas de control de acceso sólidas basadas estrictamente en el principio de mínimo privilegio.
@@ -20,23 +21,22 @@ A lo largo de estos módulos, adquirirás experiencia práctica y conocimientos 
 - 🚨 **Detección en tiempo de ejecución (Run-time Security):** Una introducción práctica a la monitorización y detección de comportamientos anómalos usando `Falco`.
 - 🔑 **Gestión Segura de Secretos (GitOps):** Aprender a proteger credenciales y datos sensibles en repositorios de código utilizando `Sealed Secrets`.
 - 🔒 **Cifrado en Reposo (Encryption at Rest):** Configurar el cifrado de datos directamente en el etcd para proteger los recursos de la API contra accesos no autorizados al almacenamiento.
-- 🌐 **Gateway API:** Implementar el estándar moderno de gestión de tráfico de entrada con separación de responsabilidades, seguridad por roles y soporte nativo de protocolos usando `Envoy Gateway`.
 ---
 
 ## 📁 Estructura del Repositorio
 
-El aprendizaje está dividido en 6 módulos temáticos. Aunque son independientes entre sí, te recomendamos seguirlos en orden para construir el conocimiento de forma progresiva:
+El aprendizaje está dividido en 8 módulos temáticos. Aunque son independientes entre sí, te recomendamos seguirlos en orden para construir el conocimiento de forma progresiva:
 
 ```text
 blindando-kubernetes/
-├── 📂 01-kube-bench/             # Auditoría de nodos y componentes del control plane
-├── 📂 02-trivy-k8s/              # Escaneo de seguridad de workloads y configuraciones
-├── 📂 03-rbac-minimum-privilege/ # Diseño seguro de Roles y asignaciones (RoleBindings)
-├── 📂 04-network-policies/       # Segmentación y reglas de tráfico entre Pods
-├── 📂 05-falco-overview/         # Monitoreo de seguridad y alertas en tiempo real
-├── 📂 06-secrets-sealed/         # Gestión segura de secretos para entornos GitOps
-├── 📂 07-encryption-at-rest/     # Cifrado de datos en reposo a nivel de la API y etcd
-└── 📂 08-gateway-api/            # Gestión moderna de tráfico de entrada con Gateway API
+├── 📂 01-gateway-api/            # Gestión moderna de tráfico de entrada con Gateway API
+├── 📂 02-kube-bench/             # Auditoría de nodos y componentes del control plane
+├── 📂 03-trivy-k8s/              # Escaneo de seguridad de workloads y configuraciones
+├── 📂 04-rbac-minimum-privilege/ # Diseño seguro de Roles y asignaciones (RoleBindings)
+├── 📂 05-network-policies/       # Segmentación y reglas de tráfico entre Pods
+├── 📂 06-falco-overview/         # Monitoreo de seguridad y alertas en tiempo real
+├── 📂 07-secrets-sealed/         # Gestión segura de secretos para entornos GitOps
+└── 📂 08-encryption-at-rest/     # Cifrado de datos en reposo a nivel de la API y etcd
 ```
 
 > 💡 **Tip de Aprendizaje:** Cada directorio contiene su propio archivo `README.md` detallado. En ellos encontrarás explicaciones claras, los comandos que debes ejecutar y todos los manifiestos YAML necesarios para resolver los escenarios planteados.
@@ -72,7 +72,7 @@ Para aprovechar al máximo estos laboratorios y no tener bloqueos técnicos, ase
    kubectl get nodes
    ```
 
-3. **¡Inicia el primer laboratorio!** Dirígete a la carpeta `01-kube-bench/` y comienza a securizar tu infraestructura.
+3. **¡Inicia el primer laboratorio!** Dirígete a la carpeta `01-gateway-api/` y comienza a securizar tu infraestructura.
 
 ---
 *Material diseñado para ayudar a ingenieros, desarrolladores y arquitectos cloud a proteger sus cargas de trabajo en Kubernetes de manera efectiva. ¡Es hora de blindar clústeres!* 🛡️☁️

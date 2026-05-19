@@ -4,7 +4,7 @@
 # Se despliega en el namespace 'demo-app' (separado de la infraestructura)
 # para demostrar la separación de responsabilidades de la Gateway API.
 # Utiliza nginxinc/nginx-unprivileged con hardening de seguridad
-# para ser consistente con lo aprendido en el módulo 02-trivy-k8s.
+# para ser consistente con lo aprendido en el módulo 03-trivy-k8s.
 # -------------------------------------------------------------------
 apiVersion: v1
 kind: Namespace
