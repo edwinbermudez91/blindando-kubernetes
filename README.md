@@ -61,7 +61,7 @@ Para aprovechar al máximo estos laboratorios y no tener bloqueos técnicos, ase
 
 1. **Clona el repositorio** en tu máquina local o entorno de laboratorio:
    ```bash
-   git clone https://github.com/tu-usuario/blindando-kubernetes.git
+   git clone https://github.com/edwinbermudez91/blindando-kubernetes.git
    cd blindando-kubernetes
    ```
    *(Nota: Si descargaste el .zip, simplemente descomprímelo y entra en la carpeta raíz).*
