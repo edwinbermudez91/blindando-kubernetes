@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: automount-test
+  namespace: security-lab
+spec:
+  serviceAccountName: viewer
+  automountServiceAccountToken: false
+  containers:
+  - name: test-container
+    image: nginx:alpine
+    command: ["sleep", "3600"]

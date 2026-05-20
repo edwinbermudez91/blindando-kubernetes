@@ -64,6 +64,41 @@ kubectl delete pod test-pod -n security-lab --as=system:serviceaccount:security-
 ```
 > **🎯 Éxito!** Deberías recibir un mensaje de error tipo `Forbidden: User cannot delete resource...`, demostrando que el RBAC bloqueó la acción.
 
+### 6️⃣ Ampliando Permisos con ClusterRole y ClusterRoleBinding
+Un `Role` está limitado a un namespace, pero a veces necesitas dar acceso a recursos que no pertenecen a ningún namespace (como los `Nodes`) o a recursos a través de todos los namespaces. Para esto usamos `ClusterRole` y `ClusterRoleBinding`.
+
+Vamos a darle permiso a nuestra `ServiceAccount` para listar los nodos del clúster.
+
+```bash
+# Aplica el ClusterRole (permisos sobre nodos)
+kubectl apply -f cluster-node-reader-clusterrole.yaml
+
+# Aplica el ClusterRoleBinding (enlaza el ClusterRole a la ServiceAccount viewer)
+kubectl apply -f cluster-node-reader-clusterrolebinding.yaml
+```
+
+**✅ Prueba de Lectura de Nodos:**
+```bash
+kubectl get nodes --as=system:serviceaccount:security-lab:viewer
+```
+> Deberías poder ver los nodos del clúster. Intenta listar un recurso global al que no le diste acceso (como `namespaces`), ¡y verás que sigue denegado!
+
+### 7️⃣ Deshabilitar el Montaje Automático del Token (automountServiceAccountToken)
+Por defecto, Kubernetes monta automáticamente el token de la `ServiceAccount` dentro de todos los pods en la ruta `/var/run/secrets/kubernetes.io/serviceaccount`. Si una aplicación es comprometida, un atacante puede usar este token para interactuar con la API de Kubernetes explotando los permisos de esa ServiceAccount.
+
+Como mejor práctica de **Mínimo Privilegio**, si tu aplicación **no** necesita comunicarse con la API de Kubernetes, debes deshabilitar este montaje automático.
+
+El archivo `pod-automount-test.yaml` muestra cómo hacerlo configurando explícitamente `automountServiceAccountToken: false`.
+
+```bash
+# Aplica el pod con el montaje de token deshabilitado
+kubectl apply -f pod-automount-test.yaml
+
+# Verifica si el token fue montado (Debe fallar porque no existe el directorio)
+kubectl exec -it automount-test -n security-lab -- ls /var/run/secrets/kubernetes.io/serviceaccount
+```
+> **🎯 Éxito!** Recibirás un error indicando `No such file or directory` o similar. Esto garantiza que, incluso si un atacante toma control del contenedor, no tendrá credenciales pre-inyectadas para escalar privilegios en el clúster.
+
 ---
 
 ## 🧹 Limpieza del Laboratorio
@@ -72,7 +107,10 @@ Para revertir los cambios realizados:
 
 ```bash
 kubectl delete pod test-pod -n security-lab --ignore-not-found
+kubectl delete -f pod-automount-test.yaml --ignore-not-found
 kubectl delete -f ns-readonly-rolebinding.yaml --ignore-not-found
 kubectl delete -f ns-readonly-role.yaml --ignore-not-found
+kubectl delete -f cluster-node-reader-clusterrolebinding.yaml --ignore-not-found
+kubectl delete -f cluster-node-reader-clusterrole.yaml --ignore-not-found
 kubectl delete serviceaccount viewer -n security-lab --ignore-not-found
 ```
