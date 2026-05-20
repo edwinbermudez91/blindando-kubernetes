@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hacker-rolebinding
+  namespace: security-lab
+subjects:
+- kind: ServiceAccount
+  name: hacker
+  namespace: security-lab
+roleRef:
+  kind: Role
+  name: hacker-role
+  apiGroup: rbac.authorization.k8s.io

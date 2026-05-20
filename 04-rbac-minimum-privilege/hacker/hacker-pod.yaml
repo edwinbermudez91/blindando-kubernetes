@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hacker-pod
+  namespace: security-lab
+spec:
+  serviceAccountName: hacker
+  automountServiceAccountToken: true
+  containers:
+  - name: ubuntu
+    image: ubuntu:latest
+    command: ["/bin/sleep", "3600"]
