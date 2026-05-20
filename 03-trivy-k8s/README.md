@@ -152,6 +152,9 @@ Si instalaste Trivy Operator en los prerrequisitos, este automáticamente escane
      --namespace trivy-system
    ```
 
+   Existen dos opciones para acceder al dashboard:
+
+   #### Opción A: Acceso temporal vía Port-Forward
    Como el servicio se crea por defecto de tipo `ClusterIP` en el puerto `8900`, realiza un reenvío de puertos (port-forward) para poder acceder localmente:
    ```bash
    kubectl port-forward service/trivy-operator-dashboard 8900:8900 -n trivy-system --address 0.0.0.0
@@ -160,7 +163,27 @@ Si instalaste Trivy Operator en los prerrequisitos, este automáticamente escane
    Abre tu navegador e ingresa a:
    👉 **[http://localhost:8900](http://localhost:8900)**
 
+   #### Opción B: Exposición formal vía Gateway API 🌐 (Recomendado)
+   Si ya has completado el **Lab 01: Gateway API**, puedes exponer el dashboard de forma elegante a través del Gateway del clúster usando la ruta `/trivy`:
+
+   1. Aplica el manifiesto `trivy-dashboard-route.yaml` que asocia el Service del dashboard con el Gateway en `envoy-gateway-system`:
+      ```bash
+      kubectl apply -f trivy-dashboard-route.yaml
+      ```
+   
+   2. Obtén el puerto NodePort asignado al proxy de Envoy:
+      ```bash
+      export NODE_PORT=$(kubectl get service -n envoy-gateway-system \
+        -l gateway.envoyproxy.io/owning-gateway-name=gateway-lab \
+        -o jsonpath='{.items[0].spec.ports[0].nodePort}')
+      
+      echo "Accede al Dashboard en: http://localhost:$NODE_PORT/trivy"
+      ```
+      
+   3. Abre tu navegador e ingresa a la dirección web que se muestra en tu terminal (ej. `http://localhost:<NODE_PORT>/trivy`).
+
    ¡Listo! Explora la interfaz gráfica para auditar visualmente el estado de seguridad de tu namespace `security-lab` y el resto de recursos del clúster.
+
 
 ---
 
@@ -169,11 +192,12 @@ Si instalaste Trivy Operator en los prerrequisitos, este automáticamente escane
 Para mantener tu clúster ordenado y liberar recursos, elimina los despliegues de prueba y los componentes instalados durante este ejercicio:
 
 ```bash
-# Eliminar despliegues y políticas del laboratorio
+# Eliminar despliegues, políticas y rutas del laboratorio
 kubectl delete -f secure-deployment.yaml -n security-lab --ignore-not-found
 kubectl delete -f insecure-deployment.yaml -n security-lab --ignore-not-found
 kubectl delete -f image-policy.yaml --ignore-not-found
 kubectl delete -f trivy-trusted-registries-policy.yaml -n trivy-system --ignore-not-found
+kubectl delete -f trivy-dashboard-route.yaml --ignore-not-found
 
 # (Opcional) Desinstalar Trivy Operator Dashboard y el operador
 helm uninstall trivy-operator-dashboard -n trivy-system

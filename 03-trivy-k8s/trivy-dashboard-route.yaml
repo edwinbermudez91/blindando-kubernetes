@@ -1,0 +1,62 @@
+# -------------------------------------------------------------------
+# trivy-dashboard-route.yaml
+# Define las reglas de enrutamiento HTTP para exponer el
+# Trivy Operator Dashboard (en trivy-system) a través del Gateway
+# (en envoy-gateway-system) con el path /trivy.
+# -------------------------------------------------------------------
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: trivy-dashboard-route
+  namespace: trivy-system
+spec:
+  # Referencia al Gateway en el namespace de infraestructura
+  parentRefs:
+    - name: gateway-lab
+      namespace: envoy-gateway-system
+
+  rules:
+    # Enrutar el prefijo "/trivy" al servicio del dashboard
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /trivy
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: trivy-operator-dashboard
+          port: 8900
+
+    # Enrutar los archivos estáticos (JS, CSS, fuentes) generados en la raíz del dashboard
+    - matches:
+        - path:
+            type: RegularExpression
+            value: ^/.*\.(js|css|woff|woff2|svg|png|jpg|ico|json)$
+      backendRefs:
+        - name: trivy-operator-dashboard
+          port: 8900
+
+    # Enrutar llamadas XHR/API del backend del dashboard
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /kubernetes-contexts
+        - path:
+            type: PathPrefix
+            value: /backend-settings
+        - path:
+            type: PathPrefix
+            value: /current-version
+        - path:
+            type: PathPrefix
+            value: /api
+        - path:
+            type: PathPrefix
+            value: /alerts-hub
+      backendRefs:
+        - name: trivy-operator-dashboard
+          port: 8900
