@@ -47,13 +47,13 @@ Comprobemos que, sin políticas de red, todos pueden hablar con el backend.
 
 **Desde el Frontend:**
 ```bash
-kubectl exec -it frontend -n security-lab -- curl -s http://backend
+kubectl exec -n security-lab -it deployments/frontend -- curl -s http://backend-svc
 ```
 > Deberías recibir una respuesta correcta.
 
 **Desde el Atacante:**
 ```bash
-kubectl exec -it attacker -n security-lab -- curl -s http://backend
+kubectl exec -it attacker -n security-lab -- curl -s http://backend-svc
 ```
 > El atacante también recibe respuesta. ¡Esto es un riesgo de seguridad enorme!
 
@@ -77,12 +77,12 @@ Volvamos a probar la conectividad para confirmar que nuestra política funciona.
 
 **✅ Frontend al Backend (Debe Funcionar):**
 ```bash
-kubectl exec -it frontend -n security-lab -- curl -s http://backend
+kubectl exec -it deployments/frontend -n security-lab -- curl -s http://backend-svc
 ```
 
 **❌ Atacante al Backend (Debe Fallar/Timeout):**
 ```bash
-kubectl exec -it attacker -n security-lab -- curl --max-time 3 http://backend
+kubectl exec -it attacker -n security-lab -- curl --max-time 3 http://backend-svc
 ```
 > El atacante ya no puede acceder al backend. ¡Hemos protegido la aplicación!
 
