@@ -101,7 +101,7 @@ Esto asegura que Falco tenga tiempo de sobra para enganchar la llamada al sistem
 kubectl create namespace security-lab || true
 
 # Desplegar el simulador de minería
-kubectl apply -f miner-pod.yaml -n security-lab
+kubectl apply -f miner-deploy.yaml -n security-lab
 ```
 
 ---
@@ -123,7 +123,7 @@ Durante la instalación habilitamos la UI de Falcosidekick. Para acceder al pane
 
 ```bash
 # 1. Abre un tunel seguro hacia el servicio de la UI
-kubectl port-forward svc/falco-falcosidekick-ui -n falco 2802:2802
+kubectl port-forward svc/falco-falcosidekick-ui -n falco --address 0.0.0.0 2802:2802
 ```
 
 **2. Accede desde tu navegador web:**
