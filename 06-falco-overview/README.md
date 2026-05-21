@@ -1,92 +1,155 @@
-# 🦅 Lab 06: Detección de Amenazas en Tiempo de Ejecución con Falco
+# 🦅 Lab 06: Detección de Amenazas en Tiempo de Ejecución con Falco (Simulación de Crypto-Mining)
 
-¡Llegamos a la fase de monitoreo y respuesta! 🚨 En esta demostración veremos **Falco** en acción. Falco es considerado el "Cámara de Seguridad" de Kubernetes: analiza las llamadas al sistema (syscalls) en tiempo real para detectar comportamientos anómalos o maliciosos en tus contenedores.
+¡Llegamos a la fase de monitoreo de seguridad en tiempo real! 🚨 En este laboratorio utilizaremos **Falco**, considerado la "Cámara de Seguridad" de Kubernetes. Falco analiza las llamadas al sistema (syscalls) a nivel del kernel de Linux en tiempo real para detectar comportamientos anómalos o maliciosos en tus contenedores.
 
-> **ℹ️ Nota:** Este laboratorio está diseñado como una demostración rápida y visual (ideal para una sesión de 60 minutos) más que como un taller profundo de escritura de reglas.
+Para hacer este laboratorio más realista y de nivel profesional, **diseñaremos y cargaremos una regla personalizada** en Falco capaz de detectar un contenedor malicioso que simula realizar actividades de minería de criptomonedas (Cryptomining) y conexión a un pool de minería usando el protocolo **Stratum**.
 
 ---
 
 ## 🎯 Objetivos de Aprendizaje
 
 - Entender el concepto de Seguridad en Tiempo de Ejecución (*Runtime Security*).
-- Desplegar Falco rápidamente utilizando su chart oficial de Helm.
-- Provocar deliberadamente un comportamiento sospechoso (abrir una shell interactiva en un contenedor).
-- Identificar y analizar las alertas generadas por Falco en los logs.
+- Crear y cargar **reglas de seguridad personalizadas** en Falco utilizando archivos de valores de Helm (`values.yaml`).
+- Desplegar un Pod simulando una intrusión maliciosa (Crypto-Miner seguro).
+- Identificar y auditar alertas críticas de severidad `CRITICAL` en los logs en tiempo real.
 
 ---
 
 ## ⚙️ Prerrequisitos
 
 - [Helm 3](https://helm.sh/docs/intro/install/) instalado localmente.
-- Un clúster de Kubernetes en el que tengas permisos de administrador (requiere privilegios para desplegar a nivel de nodo mediante un DaemonSet).
+- Un clúster de Kubernetes con permisos de administrador (ya que Falco se ejecuta como un DaemonSet con privilegios en cada nodo para leer las llamadas al sistema a nivel de kernel).
 
 ---
 
 ## 🛠️ Instrucciones Paso a Paso
 
-### 1️⃣ Instalación de Falco (vía Helm)
-Vamos a instalar Falco en su propio namespace utilizando el repositorio oficial de Helm.
+### 1️⃣ Análisis de la Regla Personalizada (`falco-values.yaml`)
+
+Hemos preparado el archivo `falco-values.yaml` para indicarle a Helm que configure una regla personalizada dentro del motor de Falco. Abre [falco-values.yaml](file:///Users/ehbc/Labs/repos/Blindando-Kubernetes/06-falco-overview/falco-values.yaml) para revisarla:
+
+```yaml
+customRules:
+  custom-miner-rules.yaml: |-
+    # Define una lista reutilizable de nombres conocidos de software minero
+    - list: crypto_miner_names
+      items: [xmrig, minerd, cpuminer, xmr-stak, cgminer, sgminer]
+      
+    # Regla personalizada para interceptar cryptominers y mineria fileless
+    - rule: Miner de Criptomonedas Detectado
+      desc: Detecta la ejecucion de procesos con nombres conocidos de software de mineria de cryptos.
+      condition: >
+        spawned_process and
+        container and
+        (proc.name in (crypto_miner_names) or proc.cmdline contains "stratum+tcp")
+      output: >
+        ALERTA CRITICA: Se ha detectado un proceso de mineria de criptomonedas o conexion a pool Stratum
+        (usuario=%user.name pod=%k8s.pod.name namespaces=%k8s.ns.name proc=%proc.name comando=%proc.cmdline contenedor=%container.id)
+      priority: CRITICAL
+      tags: [process, malware, k8s, mitre_execution]
+```
+
+> **🔍 ¿Cómo funciona la regla?**
+> * `list: crypto_miner_names`: Almacenamos un conjunto de procesos maliciosos en una lista de Falco (una macro) para mantener la regla limpia y mantenible.
+> * `spawned_process`: Asegura que el disparador sea la llamada de sistema `execve` (cuando se inicia un proceso nuevo en el SO).
+> * `container`: Garantiza que la alerta ocurra estrictamente dentro de un contenedor, evitando falsos positivos si un proceso legitimo del host coincidiera.
+> * `proc.name in (crypto_miner_names)` o `proc.cmdline contains "stratum+tcp"`: Inspecciona si el binario que se ejecuta se llama como un minero, O si los comandos inyectados hacen un intento de conectarse a un pool *Stratum* (permitiendo cazar ataques 'fileless' en intérpretes de shell).
+
+---
+
+### 2️⃣ Instalación de Falco con Reglas Personalizadas (vía Helm)
+
+Instalaremos Falco en su propio namespace e inyectaremos nuestro archivo de valores personalizados para que Falco cargue la regla automáticamente.
 
 ```bash
 # 1. Añadimos el repositorio de Falco
 helm repo add falcosecurity https://falcosecurity.github.io/charts
 helm repo update
 
-# 2. Instalamos Falco
+# 2. Instalamos Falco junto con el dashboard visual (Falcosidekick-UI) y nuestra regla personalizada
 helm install falco falcosecurity/falco \
   --namespace falco \
-  --create-namespace
+  --create-namespace \
+  -f falco-values.yaml \
+  --set falcosidekick.enabled=true \
+  --set falcosidekick.webui.enabled=true
 ```
 
-### 2️⃣ Verificación del Despliegue
-Asegúrate de que los pods de Falco (desplegados como DaemonSet en cada nodo) estén en estado `Running`. Puede tardar un par de minutos mientras compila o descarga los drivers del kernel.
+---
+
+### 3️⃣ Verificación del Despliegue
+
+Espera a que los pods de Falco se encuentren en estado `Running`. Dado que Falco descarga o compila dinámicamente un driver del kernel (eBPF o módulo del kernel) para interceptar llamadas al sistema, puede tardar hasta un par de minutos.
 
 ```bash
 kubectl get pods -n falco -o wide -w
 ```
-*(Usa `Ctrl+C` para salir del modo "watch" cuando estén listos)*
+*(Presiona `Ctrl+C` para salir del modo "watch" cuando estén listos y saludables)*
 
-### 3️⃣ Simulación de un Ataque 🏴‍☠️
-Vamos a crear un pod legítimo y luego intentar hacer algo que, en producción, sería muy sospechoso: abrir una consola interactiva (`bash`) dentro de él.
+---
 
-**Paso A: Crear el pod víctima**
+### 4️⃣ Despliegue del Atacante (Simulación de Crypto-Miner via Deployment)
+
+Ahora crearemos un Namespace de seguridad y desplegaremos el controlador que simulará ser el atacante. 
+
+Revisa el archivo [miner-pod.yaml](file:///Users/ehbc/Labs/repos/Blindando-Kubernetes/06-falco-overview/miner-pod.yaml). Para simular el ataque de forma 100% segura y controlada (sin descargar software malicioso ni minar criptomonedas reales), el `Deployment` clona internamente el binario inofensivo de `bash`, lo renombra como `xmrig` y lo mantiene activo en memoria indefinidamente (`sleep infinity`) inyectándole parámetros falsos de minería *Stratum*. 
+Esto asegura que Falco tenga tiempo de sobra para enganchar la llamada al sistema y recolectar toda la metadata de K8s:
+
 ```bash
-# Desplegamos un contenedor de Ubuntu que simplemente duerme
-kubectl run demo-shell --image=ubuntu -n security-lab -- sleep 3600
+# Crear el namespace si no existe
+kubectl create namespace security-lab || true
+
+# Desplegar el simulador de minería
+kubectl apply -f miner-pod.yaml -n security-lab
 ```
 
-**Paso B: Realizar la intrusión**
-```bash
-# Entramos al contenedor con una shell interactiva
-kubectl exec -it demo-shell -n security-lab -- bash
-```
-*(Una vez dentro del pod, puedes ejecutar comandos como `ls -la /etc`, `cat /etc/shadow` o simplemente `exit` para salir).*
+---
 
-### 4️⃣ Detección y Análisis de Logs 🚨
-Las reglas por defecto de Falco consideran sospechoso abrir una shell en un contenedor. Vamos a revisar sus logs para encontrar la alerta.
+### 5️⃣ Análisis de Alertas en Tiempo Real 🚨
 
-Abre una nueva terminal (o sal del pod) y busca la alerta en los logs de Falco:
+Dado que nuestro pod simulador de minería ejecutará de inmediato el binario renombrado y llamará a un pool Stratum ficticio, Falco deberá capturar las llamadas al sistema e imprimir alertas de alta prioridad. Tienes dos formas excelentes de visualizar estos ataques:
+
+#### Opción A: A través de Consola (Logs Planos)
+Auditemos los logs de los pods de Falco buscando específicamente el término de nuestra regla personalizada (`CRITICA`):
+
 ```bash
-# Buscamos eventos de Falco (puedes filtrar usando grep si hay mucho ruido)
-kubectl logs -n falco -l app.kubernetes.io/name=falco | grep "Notice"
+# Filtrar y observar alertas en tiempo real desde tu terminal
+kubectl logs -n falco -l app.kubernetes.io/name=falco --tail=100 -f | grep -i "ALERTA CRITICA"
 ```
 
-> **🔍 ¿Qué debes buscar?**
-> Deberías ver un mensaje similar a:
-> `Notice A shell was spawned in a container with an attached terminal (user=root pod=demo-shell ...)`
-> ¡Falco te ha pillado in fraganti!
+#### Opción B: A través de Dashboard Gráfico (Falcosidekick-UI)
+Durante la instalación habilitamos la UI de Falcosidekick. Para acceder al panel visual y ver métricas avanzadas y gráficos de las alertas:
+
+```bash
+# 1. Abre un tunel seguro hacia el servicio de la UI
+kubectl port-forward svc/falco-falcosidekick-ui -n falco 2802:2802
+```
+
+**2. Accede desde tu navegador web:**
+* **URL:** [http://localhost:2802](http://localhost:2802)
+* **Usuario:** `admin`
+* **Contraseña:** `admin`
+
+*(Allí verás gráficos de torta por nivel de severidad y el flujo de alertas de malware organizado de forma elegante).*
+
+> **🎯 ¡Victoria de Seguridad!**
+> Deberías ver una salida como esta en los logs de Falco:
+> ```text
+> 18:44:20.123456789: Critical ALERTA CRITICA: Se ha detectado un proceso de mineria de criptomonedas o conexion a pool Stratum (usuario=root pod=crypto-miner namespaces=security-lab proc=xmrig comando=xmrig -c sleep 3600 --url stratum+tcp://pool.supportxmr.com:3333 --user 44AFFq... --pass x contenedor=d12a3b4c5e6f)
+> ```
+> ¡El motor de seguridad de Falco detectó la ejecución del binario simulado y los parámetros de conexión maliciosos exactamente como configuramos en la regla personalizada!
 
 ---
 
 ## 🧹 Limpieza del Laboratorio
 
-Eliminemos los rastros de nuestra intrusión y desinstalemos Falco:
+Para revertir todos los cambios realizados y desinstalar las herramientas:
 
 ```bash
-# Borrar el pod de prueba
-kubectl delete pod demo-shell -n security-lab --ignore-not-found
+# Eliminar el pod malicioso
+kubectl delete -f miner-pod.yaml -n security-lab --ignore-not-found
 
-# Desinstalar Falco
+# Desinstalar Falco del clúster
 helm uninstall falco -n falco || true
 kubectl delete namespace falco --ignore-not-found
 ```

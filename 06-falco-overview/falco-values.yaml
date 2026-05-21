@@ -1,0 +1,23 @@
+customRules:
+  custom-miner-rules.yaml: |-
+    # Define una lista reutilizable de nombres conocidos de software minero
+    - list: crypto_miner_names
+      items: [xmrig, minerd, cpuminer, xmr-stak, cgminer, sgminer]
+      
+    # Regla personalizada para interceptar cryptominers y mineria fileless
+    - rule: Miner de Criptomonedas Detectado
+      desc: Detecta la ejecucion de procesos con nombres conocidos de software de mineria de cryptos.
+      # La condicion evalua en tiempo real:
+      # 1. spawned_process: Dispara unicamente ante syscalls 'execve' (arranque de un proceso)
+      # 2. container: Restringe la alerta unicamente a contenedores (ignora procesos host)
+      # 3. Verifica si el nombre del proceso coincide con un mineria o si su linea de comando contiene stratum+tcp
+      condition: >
+        spawned_process and
+        container and
+        (proc.name in (crypto_miner_names) or proc.cmdline contains "stratum+tcp")
+      # El mensaje formatea variables internas de Falco para brindar contexto enriquecido de K8s
+      output: >
+        ALERTA CRITICA: Se ha detectado un proceso de mineria de criptomonedas o conexion a pool Stratum
+        (usuario=%user.name pod=%k8s.pod.name namespaces=%k8s.ns.name proc=%proc.name comando=%proc.cmdline contenedor=%container.id)
+      priority: CRITICAL
+      tags: [process, malware, k8s, mitre_execution]

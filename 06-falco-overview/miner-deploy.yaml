@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: crypto-miner
+  name: crypto-miner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crypto-miner
+  template:
+    metadata:
+      labels:
+        app: crypto-miner
+    spec:
+      containers:
+      - args:
+        - |
+          cp /bin/bash /tmp/xmrig
+          chmod +x /tmp/xmrig
+          echo "Iniciando simulador de cryptominer... Proceso /tmp/xmrig creado"
+          while true; do
+            /tmp/xmrig -c 'sleep 10' --url stratum+tcp://pool.supportxmr.com:3333 --user 44AFFq --pass x
+            sleep 2
+          done
+        command:
+        - /bin/bash
+        - -c
+        image: ubuntu:latest
+        imagePullPolicy: Always
+        name: miner
