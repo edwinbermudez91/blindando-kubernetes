@@ -72,7 +72,8 @@ helm install falco falcosecurity/falco \
   --create-namespace \
   -f falco-values.yaml \
   --set falcosidekick.enabled=true \
-  --set falcosidekick.webui.enabled=true
+  --set falcosidekick.webui.enabled=true \
+  --set falcosidekick.webui.redis.storageEnabled=false
 ```
 
 ---
