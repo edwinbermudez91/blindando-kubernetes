@@ -118,6 +118,11 @@ Auditemos los logs de los pods de Falco buscando específicamente el término de
 kubectl logs -n falco -l app.kubernetes.io/name=falco --tail=100 -f | grep -i "ALERTA CRITICA"
 ```
 
+```bash
+# Observar las alertas en tiempo real desde tu terminal
+kubectl logs -n falco -l app.kubernetes.io/name=falco --tail=100 -f
+```
+
 #### Opción B: A través de Dashboard Gráfico (Falcosidekick-UI)
 Durante la instalación habilitamos la UI de Falcosidekick. Para acceder al panel visual y ver métricas avanzadas y gráficos de las alertas:
 
@@ -132,6 +137,19 @@ kubectl port-forward svc/falco-falcosidekick-ui -n falco --address 0.0.0.0 2802:
 * **Contraseña:** `admin`
 
 *(Allí verás gráficos de torta por nivel de severidad y el flujo de alertas de malware organizado de forma elegante).*
+
+#### Opción C: A través del Gateway API (Ruta /falco)
+Si desplegaste el entorno base con el Gateway API, puedes exponer la interfaz web utilizando el archivo preconfigurado `falco-httproute.yaml`. Este manifiesto enruta el tráfico que entra por `/falco` (y sus recursos estáticos) directamente hacia el pod de Falcosidekick.
+
+```bash
+# Aplica la regla de enrutamiento HTTPRoute
+kubectl apply -f falco-httproute.yaml
+```
+
+**Accede desde tu navegador web:**
+* **URL:** `http://<IP-O-URL-DEL-GATEWAY>/falco` *(Si usas un laboratorio web como iximiuz, simplemente añade `/falco` a la URL base de tu entorno en el puerto por defecto 80/443).*
+* **Usuario:** `admin`
+* **Contraseña:** `admin`
 
 > **🎯 ¡Victoria de Seguridad!**
 > Deberías ver una salida como esta en los logs de Falco:
