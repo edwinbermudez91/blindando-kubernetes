@@ -1,0 +1,20 @@
+# Configuración personalizada para kube-prometheus-stack
+grafana:
+  adminPassword: prom-operator
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s/grafana/"
+      serve_from_sub_path: true
+  # Variables de entorno inyectadas directamente al contenedor de Grafana.
+  # Tienen la MÁXIMA prioridad y garantizan que la configuración se aplique
+  # sin depender de cómo el chart monta el grafana.ini.
+  env:
+    GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+
+prometheus:
+  prometheusSpec:
+    # Estas opciones permiten que Prometheus busque ServiceMonitors en TODOS los namespaces,
+    # no solo en el namespace 'monitoring'.
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false

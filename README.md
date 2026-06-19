@@ -21,6 +21,7 @@ A lo largo de estos módulos, adquirirás experiencia práctica y conocimientos 
 - 🚨 **Detección en tiempo de ejecución (Run-time Security):** Una introducción práctica a la monitorización y detección de comportamientos anómalos usando `Falco`.
 - 🔑 **Gestión Segura de Secretos (GitOps):** Aprender a proteger credenciales y datos sensibles en repositorios de código utilizando `Sealed Secrets`.
 - 🔒 **Cifrado en Reposo (Encryption at Rest):** Configurar el cifrado de datos directamente en el etcd para proteger los recursos de la API contra accesos no autorizados al almacenamiento.
+- 📊 **Monitoreo y Observabilidad:** Desplegar y configurar la pila de Prometheus y Grafana para extraer y visualizar métricas del clúster y de cargas de trabajo en tiempo real.
 ---
 
 ## 📁 Estructura del Repositorio
@@ -36,7 +37,8 @@ blindando-kubernetes/
 ├── 📂 05-network-policies/       # Segmentación y reglas de tráfico entre Pods
 ├── 📂 06-falco-overview/         # Monitoreo de seguridad y alertas en tiempo real
 ├── 📂 07-secrets-sealed/         # Gestión segura de secretos para entornos GitOps
-└── 📂 08-encryption-at-rest/     # Cifrado de datos en reposo a nivel de la API y etcd
+├── 📂 08-encryption-at-rest/     # Cifrado de datos en reposo a nivel de la API y etcd
+└── 📂 09-monitoring-prometheus-grafana/ # Observabilidad y monitoreo de clúster y workloads
 ```
 
 > 💡 **Tip de Aprendizaje:** Cada directorio contiene su propio archivo `README.md` detallado. En ellos encontrarás explicaciones claras, los comandos que debes ejecutar y todos los manifiestos YAML necesarios para resolver los escenarios planteados.
