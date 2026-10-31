@@ -145,7 +145,7 @@ Deberías ver dos pods: el controlador `envoy-gateway` y el proxy de datos `envo
 
 ### 4️⃣ Desplegar la Aplicación de Demostración
 
-El manifiesto `02-demo-app.yaml` crea el namespace `demo-app` y despliega la aplicación dentro de él. Este Deployment aplica las buenas prácticas de *hardening* vistas en el módulo 02 (`readOnlyRootFilesystem`, `seccompProfile`, `automountServiceAccountToken: false`, etc.):
+El manifiesto `02-demo-app.yaml` crea el namespace `demo-app` y despliega la aplicación dentro de él. Este Deployment aplica buenas prácticas de *hardening* en contenedores (`readOnlyRootFilesystem`, `seccompProfile`, `automountServiceAccountToken: false`, etc.):
 
 ```bash
 kubectl apply -f manifests/02-demo-app.yaml

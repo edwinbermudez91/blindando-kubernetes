@@ -26,7 +26,7 @@ Para hacer este laboratorio más realista y de nivel profesional, **diseñaremos
 
 ### 1️⃣ Análisis de la Regla Personalizada (`falco-values.yaml`)
 
-Hemos preparado el archivo `falco-values.yaml` para indicarle a Helm que configure una regla personalizada dentro del motor de Falco. Abre [falco-values.yaml](file:///Users/ehbc/Labs/repos/Blindando-Kubernetes/06-falco-overview/falco-values.yaml) para revisarla:
+Hemos preparado el archivo `falco-values.yaml` para indicarle a Helm que configure una regla personalizada dentro del motor de Falco. Abre [`falco-values.yaml`](./falco-values.yaml) para revisarla:
 
 ```yaml
 customRules:
@@ -93,7 +93,7 @@ kubectl get pods -n falco -o wide -w
 
 Ahora crearemos un Namespace de seguridad y desplegaremos el controlador que simulará ser el atacante. 
 
-Revisa el archivo [miner-pod.yaml](file:///Users/ehbc/Labs/repos/Blindando-Kubernetes/06-falco-overview/miner-pod.yaml). Para simular el ataque de forma 100% segura y controlada (sin descargar software malicioso ni minar criptomonedas reales), el `Deployment` clona internamente el binario inofensivo de `bash`, lo renombra como `xmrig` y lo mantiene activo en memoria indefinidamente (`sleep infinity`) inyectándole parámetros falsos de minería *Stratum*. 
+Revisa el archivo [`miner-deploy.yaml`](./miner-deploy.yaml). Para simular el ataque de forma 100% segura y controlada (sin descargar software malicioso ni minar criptomonedas reales), el `Deployment` clona internamente el binario inofensivo de `bash`, lo renombra como `xmrig` y lo mantiene activo en memoria indefinidamente (`sleep infinity`) inyectándole parámetros falsos de minería *Stratum*. 
 Esto asegura que Falco tenga tiempo de sobra para enganchar la llamada al sistema y recolectar toda la metadata de K8s:
 
 ```bash
@@ -165,8 +165,9 @@ kubectl apply -f falco-httproute.yaml
 Para revertir todos los cambios realizados y desinstalar las herramientas:
 
 ```bash
-# Eliminar el pod malicioso
-kubectl delete -f miner-pod.yaml -n security-lab --ignore-not-found
+# Eliminar el simulador de minería y la ruta
+kubectl delete -f miner-deploy.yaml -n security-lab --ignore-not-found
+kubectl delete -f falco-httproute.yaml --ignore-not-found
 
 # Desinstalar Falco del clúster
 helm uninstall falco -n falco || true
