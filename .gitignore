@@ -28,3 +28,43 @@ Thumbs.db
 *.gz
 *.zip
 *.rar
+
+# Secrets & Environment Variables
+.env
+.env.*
+!.env.example
+*.secret
+*secret*.json
+secrets/
+
+# Kubernetes & Cluster Credentials
+kubeconfig
+*.kubeconfig
+.kube/
+enc.yaml
+encryption-config*.yaml
+
+# Certificates & Private Keys
+*.key
+*.pem
+*.crt
+*.csr
+*.p12
+*.pfx
+*.jks
+pub-cert.pem
+
+# Lab Generated Outputs (kube-bench, Sealed Secrets, Trivy)
+kube-bench-results.txt
+07-secrets-sealed/**/sealed-*.yaml
+trivy-report*.json
+trivy-report*.txt
+
+# Cloud & IaC Credentials
+.aws/
+.azure/
+*credentials*.json
+*service-account*.json
+*.tfstate
+*.tfstate.*
+*.tfvars
