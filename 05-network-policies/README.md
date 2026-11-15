@@ -112,3 +112,12 @@ kubectl delete -f backend-deny-all.yaml -n security-lab --ignore-not-found
 kubectl delete -f attacker-pod.yaml -n security-lab --ignore-not-found
 kubectl delete -f frontend-backend.yaml -n security-lab --ignore-not-found
 ```
+
+
+---
+
+<div align="center">
+
+[⬅️ Lab 04: RBAC](../04-rbac-minimum-privilege/README.md) · [🏠 Índice Principal](../README.md) · [Lab 06: Falco ➡️](../06-falco-overview/README.md)
+
+</div>

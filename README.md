@@ -21,30 +21,36 @@ Este repositorio está diseñado como una guía interactiva y paso a paso de **D
 ```mermaid
 flowchart TD
     subgraph Edge["🌐 1. Perímetro y Tráfico de Entrada"]
-        M1["Lab 01: Gateway API\n(Envoy Gateway + Separación de Roles)"]
+        M1["Lab 01: Gateway API<br/>(Envoy Gateway + Separación de Roles)"]
     end
 
     subgraph ControlPlane["🏛️ 2. Plano de Control y Datos en Reposo"]
-        M2["Lab 02: Auditoría CIS\n(kube-bench)"]
-        M8["Lab 08: Cifrado en etcd\n(Encryption at Rest)"]
+        M2["Lab 02: Auditoría CIS<br/>(kube-bench)"]
+        M8["Lab 08: Cifrado en etcd<br/>(Encryption at Rest)"]
     end
 
     subgraph Workloads["📦 3. Workloads, Secretos y Supply Chain"]
-        M3["Lab 03: Escaneo de Vulnerabilidades\n(Trivy CLI + Trivy Operator)"]
-        M7["Lab 07: Secretos para GitOps\n(Bitnami Sealed Secrets)"]
+        M3["Lab 03: Escaneo de Vulnerabilidades<br/>(Trivy CLI + Trivy Operator)"]
+        M7["Lab 07: Secretos para GitOps<br/>(Bitnami Sealed Secrets)"]
     end
 
     subgraph ZeroTrust["🔐 4. Identidad (RBAC) y Red Zero-Trust"]
-        M4["Lab 04: Mínimo Privilegio\n(RBAC + ServiceAccount Hardening)"]
-        M5["Lab 05: Microsegmentación\n(NetworkPolicies)"]
+        M4["Lab 04: Mínimo Privilegio<br/>(RBAC + ServiceAccount Hardening)"]
+        M5["Lab 05: Microsegmentación<br/>(NetworkPolicies)"]
     end
 
     subgraph Runtime["🚨 5. Detección Runtime y Observabilidad"]
-        M6["Lab 06: Seguridad en Ejecución\n(Falco eBPF + Reglas Custom)"]
-        M9["Lab 09: Monitoreo y Postura\n(Prometheus + Grafana + Trivy)"]
+        M6["Lab 06: Seguridad en Ejecución<br/>(Falco eBPF + Reglas Custom)"]
+        M9["Lab 09: Monitoreo y Postura<br/>(Prometheus + Grafana + Trivy)"]
     end
 
     Edge --> ControlPlane --> Workloads --> ZeroTrust --> Runtime
+
+    style Edge fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style ControlPlane fill:#f5f3ff,stroke:#7c3aed,color:#4c1d95
+    style Workloads fill:#fffbeb,stroke:#d97706,color:#78350f
+    style ZeroTrust fill:#f0fdf4,stroke:#16a34a,color:#14532d
+    style Runtime fill:#fef2f2,stroke:#dc2626,color:#7f1d1d
 ```
 
 ---
@@ -53,17 +59,32 @@ flowchart TD
 
 El aprendizaje está dividido en **9 módulos prácticos**. Aunque cada uno puede ejecutarse de forma independiente, seguirlos en orden te permite construir un clúster blindado de extremo a extremo:
 
-| # | Laboratorio | Capa de Seguridad | Herramientas Clave | Guía Paso a Paso |
-| :---: | :--- | :--- | :---: | :---: |
-| **01** | **Kubernetes Gateway API** | Tráfico de Entrada y Separación de Roles | `Envoy Gateway` `HTTPRoute` | [🌐 Ir al Lab 01](./01-gateway-api/README.md) |
-| **02** | **Auditoría CIS Benchmark** | Cumplimiento del Plano de Control y Nodos | `kube-bench` `CIS Benchmark` | [🛡️ Ir al Lab 02](./02-kube-bench/README.md) |
-| **03** | **Escaneo de Vulnerabilidades y Misconfigurations** | Imágenes, `securityContext` y Registros Confiables | `Trivy CLI` `Trivy Operator` | [🔍 Ir al Lab 03](./03-trivy-k8s/README.md) |
-| **04** | **RBAC y Mínimo Privilegio** | Autorización, Impersonación y Protección de Tokens | `Role` `ClusterRole` `SA` | [🔐 Ir al Lab 04](./04-rbac-minimum-privilege/README.md) |
-| **05** | **Aislamiento con NetworkPolicies** | Microsegmentación y Red *Zero-Trust* | `NetworkPolicy` `CNI` | [🕸️ Ir al Lab 05](./05-network-policies/README.md) |
-| **06** | **Detección en Tiempo de Ejecución (Runtime)** | Inspección de *Syscalls* y Caza de Crypto-Miners | `Falco` `Falcosidekick UI` | [🦅 Ir al Lab 06](./06-falco-overview/README.md) |
-| **07** | **Gestión Segura de Secretos (GitOps)** | Cifrado Asimétrico y Scopes (`strict`, `ns`, `cluster`) | `Sealed Secrets` `kubeseal` | [🔑 Ir al Lab 07](./07-secrets-sealed/README.md) |
-| **08** | **Cifrado de Datos en Reposo (etcd)** | Protección Criptográfica de `Secrets` en `etcd` | `EncryptionConfiguration` `etcdctl` | [🔒 Ir al Lab 08](./08-encryption-at-rest/README.md) |
-| **09** | **Monitoreo Integral y Postura de Seguridad** | Observabilidad de Recursos y Dashboards de CVEs | `Prometheus` `Grafana` `ServiceMonitor` | [📊 Ir al Lab 09](./09-monitoring-prometheus-grafana/README.md) |
+| # | Laboratorio | Capa de Seguridad | Nivel | Duración | Herramientas Clave | Guía Paso a Paso |
+| :---: | :--- | :--- | :---: | :---: | :---: | :---: |
+| **01** | **Kubernetes Gateway API** | Tráfico de Entrada y Separación de Roles | `Intermedio` | `~20 min` | `Envoy Gateway` `HTTPRoute` | [🌐 Ir al Lab 01](./01-gateway-api/README.md) |
+| **02** | **Auditoría CIS Benchmark** | Cumplimiento del Plano de Control y Nodos | `Básico` | `~15 min` | `kube-bench` `CIS` | [🛡️ Ir al Lab 02](./02-kube-bench/README.md) |
+| **03** | **Escaneo de Vulnerabilidades** | Imágenes, `securityContext` y Registros | `Intermedio` | `~25 min` | `Trivy CLI` `Operator` | [🔍 Ir al Lab 03](./03-trivy-k8s/README.md) |
+| **04** | **RBAC y Mínimo Privilegio** | Autorización, Impersonación y Tokens | `Intermedio` | `~20 min` | `Role` `ClusterRole` `SA` | [🔐 Ir al Lab 04](./04-rbac-minimum-privilege/README.md) |
+| **05** | **Aislamiento con NetworkPolicies** | Microsegmentación y Red *Zero-Trust* | `Intermedio` | `~15 min` | `NetworkPolicy` `CNI` | [🕸️ Ir al Lab 05](./05-network-policies/README.md) |
+| **06** | **Detección en Runtime** | Inspección de *Syscalls* y Crypto-Miners | `Avanzado` | `~25 min` | `Falco` `Falcosidekick` | [🦅 Ir al Lab 06](./06-falco-overview/README.md) |
+| **07** | **Gestión Segura de Secretos** | Cifrado Asimétrico GitOps y Scopes | `Intermedio` | `~25 min` | `Sealed Secrets` `kubeseal` | [🔑 Ir al Lab 07](./07-secrets-sealed/README.md) |
+| **08** | **Cifrado de Datos en Reposo** | Protección Criptográfica en `etcd` | `Avanzado` | `~20 min` | `EncryptionConfig` `etcdctl` | [🔒 Ir al Lab 08](./08-encryption-at-rest/README.md) |
+| **09** | **Monitoreo y Postura de Seguridad** | Observabilidad y Dashboards de CVEs | `Intermedio` | `~25 min` | `Prometheus` `Grafana` | [📊 Ir al Lab 09](./09-monitoring-prometheus-grafana/README.md) |
+
+<details>
+<summary>✅ <strong>Checklist de Progreso del Estudiante (CKS / Hardening)</strong></summary>
+
+- [ ] **Lab 01:** Exponer servicios con `GatewayClass`, `Gateway` y `HTTPRoute` separando roles entre namespaces.
+- [ ] **Lab 02:** Auditar nodos y Control Plane con `kube-bench` e interpretar hallazgos `[FAIL]` / `[WARN]`.
+- [ ] **Lab 03:** Detectar CVEs y aplicar `securityContext` endurecido + políticas de registros confiables con Trivy/Kyverno.
+- [ ] **Lab 04:** Diseñar roles de mínimo privilegio y desactivar el montaje automático de tokens (`automountServiceAccountToken: false`).
+- [ ] **Lab 05:** Aplicar política `default-deny-all` y habilitar tráfico selectivo por `podSelector`.
+- [ ] **Lab 06:** Escribir reglas personalizadas en Falco para detectar binarios maliciosos y conexiones Stratum.
+- [ ] **Lab 07:** Sellar secretos para GitOps y comprobar los límites de `strict`, `namespace-wide` y `cluster-wide`.
+- [ ] **Lab 08:** Configurar cifrado `aescbc` en `kube-apiserver` y verificar secretos cifrados en `etcd`.
+- [ ] **Lab 09:** Integrar métricas de Trivy Operator en Prometheus y visualizarlas en Grafana.
+
+</details>
 
 ---
 
@@ -79,7 +100,8 @@ blindando-kubernetes/
 ├── 📂 06-falco-overview/                # Reglas personalizadas en Falco para detectar Crypto-Miners
 ├── 📂 07-secrets-sealed/                # Cifrado de secretos para GitOps y laboratorio de Scopes
 ├── 📂 08-encryption-at-rest/            # Cifrado de secretos en reposo en etcd (aescbc / KMS)
-└── 📂 09-monitoring-prometheus-grafana/ # Observabilidad del clúster e integración con Trivy Operator
+├── 📂 09-monitoring-prometheus-grafana/ # Observabilidad del clúster e integración con Trivy Operator
+└── 📂 scripts/                          # Script de verificación rápida de prerrequisitos (check-env.sh)
 ```
 
 > 💡 **Tip de Aprendizaje:** Cada directorio contiene su propio archivo `README.md` detallado con explicaciones, comandos listos para copiar y todos los manifiestos YAML necesarios.
@@ -109,10 +131,9 @@ Para aprovechar al máximo estos laboratorios sin bloqueos técnicos, asegúrate
    cd blindando-kubernetes
    ```
 
-2. **Verifica la conexión a tu clúster:**
+2. **Verifica los prerrequisitos y la conexión a tu clúster:**
    ```bash
-   kubectl cluster-info
-   kubectl get nodes
+   ./scripts/check-env.sh
    ```
 
 3. **¡Inicia el primer laboratorio!** Entra a [`01-gateway-api/README.md`](./01-gateway-api/README.md) y avanza módulo por módulo.

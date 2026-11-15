@@ -213,3 +213,12 @@ kubectl delete secret my-db-creds
 # Desinstalar el controlador
 helm uninstall sealed-secrets-controller -n kube-system
 ```
+
+
+---
+
+<div align="center">
+
+[⬅️ Lab 06: Falco](../06-falco-overview/README.md) · [🏠 Índice Principal](../README.md) · [Lab 08: Encryption at Rest ➡️](../08-encryption-at-rest/README.md)
+
+</div>

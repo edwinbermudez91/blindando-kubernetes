@@ -172,3 +172,12 @@ Opcionalmente, para asegurar que **todos** los secretos estén estrictamente cif
 
 ---
 > ⚠️ **Consideración de Seguridad (Local vs KMS):** Almacenar la llave de cifrado en un archivo en el disco del control plane (como hicimos con `aescbc`) protege contra la lectura pasiva de la base de datos `etcd` o la sustracción de backups de etcd. Sin embargo, si un atacante compromete a fondo el nodo de control plane, podrá leer el archivo `enc.yaml` y extraer la llave. Para máxima seguridad y cumplimiento, se debe utilizar el proveedor **KMS**.
+
+
+---
+
+<div align="center">
+
+[⬅️ Lab 07: Sealed Secrets](../07-secrets-sealed/README.md) · [🏠 Índice Principal](../README.md) · [Lab 09: Monitoreo ➡️](../09-monitoring-prometheus-grafana/README.md)
+
+</div>

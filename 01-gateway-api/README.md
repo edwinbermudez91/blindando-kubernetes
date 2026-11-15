@@ -253,3 +253,12 @@ kubectl delete namespace envoy-gateway-system --ignore-not-found
 - 📖 [Documentación de Envoy Gateway](https://gateway.envoyproxy.io/)
 - 📄 [Releases de Gateway API en GitHub](https://github.com/kubernetes-sigs/gateway-api/releases)
 - 🎓 [Guía de migración de Ingress a Gateway API](https://gateway-api.sigs.k8s.io/guides/migrating-from-ingress/)
+
+
+---
+
+<div align="center">
+
+[🏠 Índice Principal](../README.md) · [Lab 02: Auditoría CIS ➡️](../02-kube-bench/README.md)
+
+</div>

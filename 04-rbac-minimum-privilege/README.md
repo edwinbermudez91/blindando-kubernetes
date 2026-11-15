@@ -199,3 +199,12 @@ kubectl delete -f cluster-node-reader-clusterrolebinding.yaml --ignore-not-found
 kubectl delete -f cluster-node-reader-clusterrole.yaml --ignore-not-found
 kubectl delete serviceaccount viewer hacker -n security-lab --ignore-not-found
 ```
+
+
+---
+
+<div align="center">
+
+[⬅️ Lab 03: Trivy](../03-trivy-k8s/README.md) · [🏠 Índice Principal](../README.md) · [Lab 05: NetworkPolicies ➡️](../05-network-policies/README.md)
+
+</div>

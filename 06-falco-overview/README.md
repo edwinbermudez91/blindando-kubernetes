@@ -191,3 +191,12 @@ kubectl delete -f falco-httproute.yaml --ignore-not-found
 helm uninstall falco -n falco || true
 kubectl delete namespace falco --ignore-not-found
 ```
+
+
+---
+
+<div align="center">
+
+[⬅️ Lab 05: NetworkPolicies](../05-network-policies/README.md) · [🏠 Índice Principal](../README.md) · [Lab 07: Sealed Secrets ➡️](../07-secrets-sealed/README.md)
+
+</div>

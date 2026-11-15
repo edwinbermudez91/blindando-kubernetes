@@ -81,3 +81,12 @@ grep -E "\[FAIL\]|\[WARN\]|Summary" kube-bench-results.txt
 kubectl delete job kube-bench -n security-lab --ignore-not-found
 rm -f kube-bench-results.txt
 ```
+
+
+---
+
+<div align="center">
+
+[⬅️ Lab 01: Gateway API](../01-gateway-api/README.md) · [🏠 Índice Principal](../README.md) · [Lab 03: Trivy ➡️](../03-trivy-k8s/README.md)
+
+</div>

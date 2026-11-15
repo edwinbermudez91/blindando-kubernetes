@@ -121,3 +121,12 @@ kubectl delete -f grafana-route.yaml --ignore-not-found
 helm uninstall kube-prometheus -n monitoring
 kubectl delete namespace monitoring
 ```
+
+
+---
+
+<div align="center">
+
+[⬅️ Lab 08: Encryption at Rest](../08-encryption-at-rest/README.md) · [🏠 Índice Principal](../README.md)
+
+</div>

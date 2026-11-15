@@ -228,3 +228,12 @@ helm uninstall trivy-operator-dashboard -n trivy-system
 helm uninstall trivy-operator -n trivy-system
 kubectl delete namespace trivy-system --ignore-not-found
 ```
+
+
+---
+
+<div align="center">
+
+[⬅️ Lab 02: Auditoría CIS](../02-kube-bench/README.md) · [🏠 Índice Principal](../README.md) · [Lab 04: RBAC ➡️](../04-rbac-minimum-privilege/README.md)
+
+</div>
