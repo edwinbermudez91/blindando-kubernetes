@@ -7,6 +7,7 @@
 [![Trivy & Falco](https://img.shields.io/badge/SecOps-Trivy_•_Falco_•_Sealed_Secrets-D32F2F?style=for-the-badge&logo=aquasecurity&logoColor=white)](./03-trivy-k8s/README.md)
 [![Observabilidad](https://img.shields.io/badge/Observabilidad-Prometheus_&_Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)](./09-monitoring-prometheus-grafana/README.md)
 [![Instructor](https://img.shields.io/badge/Autor-Edwin_Bermúdez-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/edwin-bermudez-cuervo)
+[![License: MIT](https://img.shields.io/badge/License-MIT-16A34A?style=for-the-badge)](./LICENSE)
 
 ¡Bienvenido al repositorio oficial de laboratorios prácticos de **"Blindando Kubernetes: Seguridad, Auditoría y Control Total del Clúster"**! 🚀
 
@@ -147,5 +148,11 @@ Material diseñado y mantenido por **Edwin Bermúdez** — *Senior DevOps & SRE 
 - 🔗 **LinkedIn:** [linkedin.com/in/edwin-bermudez-cuervo](https://www.linkedin.com/in/edwin-bermudez-cuervo)
 - 🐙 **GitHub:** [@edwinbermudez91](https://github.com/edwinbermudez91)
 - 🚢 **Curso Fundamentos de Kubernetes:** [edwinbermudez91/Fundamentos-Kubernetes](https://github.com/edwinbermudez91/Fundamentos-Kubernetes)
+
+---
+
+## 📄 Licencia
+
+Este proyecto está distribuido bajo la **Licencia MIT**. Consulta el archivo [LICENSE](./LICENSE) para más detalles.
 
 *¡Es hora de blindar clústeres de principio a fin!* 🛡️☸️
