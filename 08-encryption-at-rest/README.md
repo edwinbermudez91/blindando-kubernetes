@@ -14,6 +14,22 @@ Este módulo cubre la configuración del cifrado de datos en reposo para los rec
 
 ---
 
+## 🗺️ Flujo de Cifrado en Reposo (etcd)
+
+```mermaid
+flowchart LR
+    USER["👤 kubectl create secret<br/>(password=nuevosecreto)"] -->|"HTTPS"| API["⚙️ kube-apiserver<br/>(--encryption-provider-config)"]
+    API -->|"Aplica proveedor:<br/>1. aescbc (key1)<br/>2. identity (lectura)"| ENC["🔐 Datos Cifrados<br/>k8s:enc:aescbc:v1:key1:..."]
+    ENC -->|"Almacena"| ETCD[("🗄️ etcd<br/>(Ilegible sin llave)")]
+
+    style USER fill:#0284c7,color:#fff
+    style API fill:#7c3aed,color:#fff
+    style ENC fill:#16a34a,color:#fff
+    style ETCD fill:#475569,color:#fff
+```
+
+---
+
 ## Ejercicio Práctico: Configurar Cifrado Local (aescbc)
 
 En este ejercicio, configuraremos el cifrado de datos en reposo utilizando el proveedor `aescbc` con una llave generada localmente.

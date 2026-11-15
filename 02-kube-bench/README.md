@@ -12,6 +12,22 @@ En este laboratorio ejecutarás **kube-bench** como un Job dentro del clúster p
 
 > Nota: adapta los comandos a tu entorno (bare metal, managed, etc.). En servicios manejados (EKS, GKE, AKS), muchas comprobaciones del plano de control no aplican directamente ya que son gestionadas por el proveedor.
 
+## 🗺️ Flujo de Auditoría CIS
+
+```mermaid
+flowchart LR
+    JOB["📋 Job: kube-bench<br/>(Toleration Control-Plane)"] -->|"Monta hostPath (RO)<br/>/etc/kubernetes, /var/lib"| NODE["🖥️ Nodo Control Plane / Worker"]
+    NODE -->|"Evalúa CIS Benchmark"| CHECKS{"Resultados"}
+    CHECKS -->|"[PASS]"| P["✅ Cumple"]
+    CHECKS -->|"[WARN]"| W["⚠️ Revisar"]
+    CHECKS -->|"[FAIL]"| F["❌ Riesgo / Hardening"]
+
+    style JOB fill:#0284c7,color:#fff
+    style P fill:#16a34a,color:#fff
+    style W fill:#d97706,color:#fff
+    style F fill:#dc2626,color:#fff
+```
+
 ## Pasos
 
 1. Crear namespace de laboratorio (opcional):
@@ -63,4 +79,5 @@ grep -E "\[FAIL\]|\[WARN\]|Summary" kube-bench-results.txt
 
 ```bash
 kubectl delete job kube-bench -n security-lab --ignore-not-found
+rm -f kube-bench-results.txt
 ```

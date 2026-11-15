@@ -6,6 +6,31 @@ El problema: Los **Secrets** estándar de Kubernetes solo están codificados en 
 
 ---
 
+## 🗺️ Flujo de Cifrado y Scopes
+
+```mermaid
+flowchart LR
+    subgraph Local["💻 Máquina Local / GitOps"]
+        RAW["Secret plano<br/>(Base64 - NO seguro)"] -->|"kubeseal + Llave Pública<br/>(--format=yaml)"| SS["SealedSecret<br/>(Cifrado - Seguro para Git)"]
+        SS -->|"Scope: strict (default)"| S1["Mismo Namespace + Nombre"]
+        SS -->|"Scope: namespace-wide"| S2["Mismo Namespace (cualquier Nombre)"]
+        SS -->|"Scope: cluster-wide"| S3["Cualquier Namespace y Nombre"]
+    end
+
+    subgraph Cluster["☸️ Clúster Kubernetes"]
+        CTRL["Sealed Secrets Controller<br/>(Llave Privada)"] -->|"Descifra"| SEC["Secret nativo de K8s"]
+    end
+
+    SS -->|"kubectl apply"| CTRL
+
+    style RAW fill:#dc2626,color:#fff
+    style SS fill:#0284c7,color:#fff
+    style CTRL fill:#7c3aed,color:#fff
+    style SEC fill:#16a34a,color:#fff
+```
+
+---
+
 ## 🎯 Objetivos de Aprendizaje
 
 - Entender por qué los Secrets estándar no son aptos para GitOps.
@@ -100,8 +125,8 @@ El secreto está vinculado tanto al **nombre** como al **namespace**. Si cambias
 
 **Laboratorio:**
 ```bash
-# 1. Sellar el secreto para el namespace 'default'
-kubeseal --scope strict < manifests/strict/secret-raw.yaml > manifests/strict/sealed-strict.yaml
+# 1. Sellar el secreto para el namespace 'default' (en formato YAML)
+kubeseal --scope strict --format=yaml < manifests/strict/secret-raw.yaml > manifests/strict/sealed-strict.yaml
 
 # 2. ✅ Escenario de Éxito: Aplicar en 'default' y desplegar Pod
 kubectl apply -f manifests/strict/sealed-strict.yaml -n default
@@ -110,7 +135,7 @@ kubectl get pod strict-success-pod # Debería estar 'Running'
 
 # 3. ❌ Escenario de Fallo: Intentar aplicar el mismo secreto en 'dev'
 # Un atacante copia el archivo y cambia el namespace a 'dev' en el YAML para engañar a Kubernetes
-sed 's/"namespace": "default"/"namespace": "dev"/g' manifests/strict/sealed-strict.yaml > manifests/strict/sealed-strict-hacked.yaml
+sed 's/namespace: default/namespace: dev/g' manifests/strict/sealed-strict.yaml > manifests/strict/sealed-strict-hacked.yaml
 
 # El atacante aplica su archivo hackeado
 kubectl apply -f manifests/strict/sealed-strict-hacked.yaml
@@ -127,8 +152,8 @@ El secreto está vinculado al **namespace**, pero puedes cambiarle el **nombre**
 
 **Laboratorio:**
 ```bash
-# 1. Sellar el secreto para el namespace 'backend'
-kubeseal --scope namespace-wide < manifests/namespace-wide/secret-raw.yaml > manifests/namespace-wide/sealed-namespace.yaml
+# 1. Sellar el secreto para el namespace 'backend' (en formato YAML)
+kubeseal --scope namespace-wide --format=yaml < manifests/namespace-wide/secret-raw.yaml > manifests/namespace-wide/sealed-namespace.yaml
 
 # 2. ✅ Escenario de Éxito: Renombrar y aplicar en 'backend'
 # Al aplicar, le cambiamos el nombre al vuelo de 'ns-creds' a 'db-creds-api' pero mantenemos el namespace
@@ -138,7 +163,7 @@ kubectl get pod ns-success-pod -n backend # Debería estar 'Running'
 
 # 3. ❌ Escenario de Fallo: Intentar aplicarlo en 'frontend'
 # Un atacante copia el archivo e intenta cambiar el nombre y el namespace para aplicarlo en su entorno 'frontend'
-sed -e 's/"name": "ns-creds"/"name": "db-creds-api"/g' -e 's/"namespace": "backend"/"namespace": "frontend"/g' manifests/namespace-wide/sealed-namespace.yaml > manifests/namespace-wide/sealed-namespace-hacked.yaml
+sed -e 's/name: ns-creds/name: db-creds-api/g' -e 's/namespace: backend/namespace: frontend/g' manifests/namespace-wide/sealed-namespace.yaml > manifests/namespace-wide/sealed-namespace-hacked.yaml
 
 # El atacante aplica su archivo hackeado
 kubectl apply -f manifests/namespace-wide/sealed-namespace-hacked.yaml
@@ -156,7 +181,7 @@ El secreto puede ser descifrado en **cualquier namespace** y con **cualquier nom
 **Laboratorio:**
 ```bash
 # 1. Sellar el secreto (Cluster-wide no se ata a namespace/name)
-kubeseal --scope cluster-wide < manifests/cluster-wide/secret-raw.yaml > manifests/cluster-wide/sealed-cluster.yaml
+kubeseal --scope cluster-wide --format=yaml < manifests/cluster-wide/secret-raw.yaml > manifests/cluster-wide/sealed-cluster.yaml
 
 # 2. ✅ Escenario de Éxito: Aplicar en múltiples namespaces
 kubectl apply -f manifests/cluster-wide/sealed-cluster.yaml -n dev

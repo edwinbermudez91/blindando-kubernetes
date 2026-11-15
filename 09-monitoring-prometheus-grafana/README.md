@@ -14,6 +14,24 @@
 
 ---
 
+## 🗺️ Pipeline de Observabilidad de Seguridad
+
+```mermaid
+flowchart LR
+    TRIVY["🛡️ Trivy Operator<br/>(trivy-system :8080/metrics)"] -->|"Scraped vía"| SM["📡 ServiceMonitor<br/>(trivy-servicemonitor.yaml)"]
+    KSM["☸️ kube-state-metrics &<br/>node-exporter"] -->|"Métricas Clúster"| PROM
+    SM -->|"Expone métricas"| PROM["🔥 Prometheus<br/>(monitoring)"]
+    PROM -->|"DataSource"| GRAF["📊 Grafana<br/>(Dashboards Seguridad & Clúster)"]
+    GRAF -->|"Acceso"| USER["👤 Port-Forward (:3000) o<br/>Gateway API (/grafana)"]
+
+    style TRIVY fill:#7c3aed,color:#fff
+    style SM fill:#0284c7,color:#fff
+    style PROM fill:#ea580c,color:#fff
+    style GRAF fill:#16a34a,color:#fff
+```
+
+---
+
 ## ⚙️ Prerrequisitos
 
 - Un clúster de Kubernetes activo.

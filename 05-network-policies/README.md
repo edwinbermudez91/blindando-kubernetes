@@ -13,6 +13,20 @@
 
 ---
 
+## 🗺️ Aislamiento Zero Trust con NetworkPolicies
+
+```mermaid
+flowchart LR
+    FE["🟢 Pod: frontend<br/>(app: frontend)"] -->|"✅ Permitido<br/>(Puerto 8080)"| BE["🔵 Pod: backend<br/>(app: backend)"]
+    ATT["🔴 Pod: attacker<br/>(Sin etiqueta frontend)"] -->|"❌ Bloqueado<br/>(default-deny-all)"| BE
+
+    style FE fill:#16a34a,color:#fff
+    style BE fill:#0284c7,color:#fff
+    style ATT fill:#dc2626,color:#fff
+```
+
+---
+
 ## ⚙️ Prerrequisitos
 
 > **⚠️ Importante:** Para que las NetworkPolicies surtan efecto, tu clúster de Kubernetes debe tener instalado un plugin de red (CNI) que las soporte, como **Calico**, **Cilium** o **Weave Net**. Si usas minikube o kind con su configuración básica, las reglas podrían no aplicarse.

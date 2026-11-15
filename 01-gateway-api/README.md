@@ -24,29 +24,29 @@
 | **Auditabilidad**           | Configuraciones ocultas en annotations  | Todo visible como recursos del API      |
 | **Soporte a futuro**        | Sin desarrollo activo en Ingress-NGINX | Estándar oficial upstream de Kubernetes |
 
-### Los tres recursos clave
+### Arquitectura y Separación de Roles
 
-```
-[GatewayClass]  →  Define qué controlador gestiona los Gateways
-    ↓
-[Gateway]       →  Define el punto de entrada (puerto, protocolo, TLS)
-    ↓
-[HTTPRoute]     →  Define las reglas de enrutamiento hacia los Services
-```
+```mermaid
+flowchart LR
+    Client["🌐 Cliente HTTP"] -->|"NodePort"| GW
 
-### Separación de Namespaces en este laboratorio
+    subgraph Infra["🏢 Namespace: envoy-gateway-system (Equipo Plataforma)"]
+        GC["GatewayClass: eg"] -.->|"Configura"| EP["EnvoyProxy (NodePort)"]
+        GC -->|"Gestiona"| GW["Gateway: gateway-lab<br/>(Puerto 80 HTTP)"]
+    end
 
-```
-envoy-gateway-system/          ← Namespace de INFRAESTRUCTURA (equipo de plataforma)
-├── EnvoyProxy                 ← Configuración del proxy (NodePort)
-├── GatewayClass               ← Registro del controlador
-├── Gateway                    ← Punto de entrada al clúster
-└── Pods del controlador       ← envoy-gateway + envoy proxy
+    subgraph App["🚀 Namespace: demo-app (Equipo Aplicación)"]
+        HR["HTTPRoute: demo-app-route<br/>(Cross-Namespace)"] -->|"Enruta /"| SVC["Service: demo-app<br/>(ClusterIP)"]
+        SVC --> POD["Deployment: demo-app<br/>(Nginx Hardened)"]
+    end
 
-demo-app/                      ← Namespace de APLICACIÓN (equipo de desarrollo)
-├── Deployment                 ← Aplicación Nginx con hardening
-├── Service                    ← ClusterIP expone la app internamente
-└── HTTPRoute                  ← Regla de enrutamiento (cross-namespace)
+    GW -->|"allowedRoutes: All"| HR
+
+    style Infra fill:#eff6ff,stroke:#2563eb,color:#1e3a8a
+    style App fill:#f0fdf4,stroke:#16a34a,color:#14532d
+    style Client fill:#475569,color:#fff
+    style GW fill:#2563eb,color:#fff
+    style HR fill:#16a34a,color:#fff
 ```
 
 ---

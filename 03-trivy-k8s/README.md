@@ -13,6 +13,30 @@
 
 ---
 
+## 🗺️ Arquitectura de Escaneo (CLI vs Operator)
+
+```mermaid
+flowchart TB
+    subgraph Manual["💻 Escaneo Bajo Demanda"]
+        CLI["trivy k8s<br/>(CLI local)"] -->|"Escanea clúster"| R1["Reporte en terminal<br/>(CVEs + Misconfigs)"]
+    end
+
+    subgraph Auto["🔄 Escaneo Continuo (In-Cluster)"]
+        OP["Trivy Operator<br/>(trivy-system)"] -->|"Genera CRDs"| VR["VulnerabilityReport"]
+        OP -->|"Evalúa Rego"| CAR["ConfigAuditReport"]
+        VR & CAR -->|"Visualiza"| DASH["Trivy Dashboard<br/>(:8900 o Gateway /trivy)"]
+    end
+
+    KYV["🛡️ Kyverno ClusterPolicy<br/>(image-policy.yaml)"] -.->|"Audita registros<br/>autorizados"| OP
+
+    style CLI fill:#0284c7,color:#fff
+    style OP fill:#7c3aed,color:#fff
+    style DASH fill:#16a34a,color:#fff
+    style KYV fill:#d97706,color:#fff
+```
+
+---
+
 ## ⚙️ Prerrequisitos
 
 Antes de comenzar, asegúrate de tener lo siguiente:
@@ -84,7 +108,7 @@ Es hora de corregir los problemas encontrados.
 2. **Restricción de Registros de Confianza (Trusted Registries):**
    * El manifiesto seguro utiliza un nombre de imagen completamente calificado (FQIN) que especifica explícitamente el dominio de confianza: `docker.io/nginxinc/nginx-unprivileged:1.21-alpine` en lugar del valor implícito `nginxinc/...`.
    * En entornos de producción, es una buena práctica forzar que las imágenes provengan únicamente de dominios autorizados (por ejemplo, registros privados o repositorios de confianza) para prevenir ataques de suplantación de identidad (spoofing) o descargas accidentales de software malicioso.
-   * Se incluye un archivo `image-policy.yaml` con una política de **Kyverno** que audita o bloquea cualquier pod que intente utilizar imágenes fuera de los registros autorizados (`docker.io`, `ghcr.io`, `gcr.io`):
+   * *(Opcional — requiere **Kyverno** instalado en el clúster)* Se incluye un archivo `image-policy.yaml` con una política de **Kyverno** que audita o bloquea cualquier pod que intente utilizar imágenes fuera de los registros autorizados (`docker.io`, `ghcr.io`, `gcr.io`):
      ```bash
      kubectl apply -f image-policy.yaml
      ```

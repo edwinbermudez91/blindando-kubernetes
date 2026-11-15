@@ -13,6 +13,25 @@
 
 ---
 
+## 🗺️ Modelo RBAC y Hardening de Tokens
+
+```mermaid
+flowchart LR
+    SA["🪪 ServiceAccount: viewer<br/>(Namespace: security-lab)"] -->|"Vinculada vía<br/>RoleBinding"| ROLE["📜 Role: pod-reader<br/>(get, list, watch pods)"]
+    ROLE -->|"✅ Permitido"| GET["kubectl get pods"]
+    ROLE -->|"❌ Denegado (403)"| DEL["kubectl delete / create"]
+
+    POD["🛡️ Pod Hardened<br/>(automountServiceAccountToken: false)"] -.->|"Bloquea montaje de<br/>/var/run/secrets/.../token"| SA
+
+    style SA fill:#0284c7,color:#fff
+    style ROLE fill:#7c3aed,color:#fff
+    style GET fill:#16a34a,color:#fff
+    style DEL fill:#dc2626,color:#fff
+    style POD fill:#0f766e,color:#fff
+```
+
+---
+
 ## 🛠️ Instrucciones Paso a Paso
 
 ### 1️⃣ Preparación del Entorno

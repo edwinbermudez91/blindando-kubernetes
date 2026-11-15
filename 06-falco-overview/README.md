@@ -15,6 +15,24 @@ Para hacer este laboratorio más realista y de nivel profesional, **diseñaremos
 
 ---
 
+## 🗺️ Arquitectura de Detección en Tiempo de Ejecución
+
+```mermaid
+flowchart LR
+    POD["🐳 Pod Simulador<br/>(xmrig / stratum+tcp)"] -->|"Syscall execve"| KERNEL["🐧 Kernel Linux<br/>(eBPF / Driver)"]
+    KERNEL -->|"Eventos en tiempo real"| FALCO["🦅 Falco DaemonSet<br/>(custom-miner-rules.yaml)"]
+    FALCO -->|"Prioridad CRITICAL"| LOGS["📜 kubectl logs<br/>(ALERTA CRITICA)"]
+    FALCO -->|"Reenvía evento"| UI["📊 Falcosidekick UI<br/>(:2802 o Gateway /falco)"]
+
+    style POD fill:#dc2626,color:#fff
+    style KERNEL fill:#475569,color:#fff
+    style FALCO fill:#0284c7,color:#fff
+    style LOGS fill:#d97706,color:#fff
+    style UI fill:#16a34a,color:#fff
+```
+
+---
+
 ## ⚙️ Prerrequisitos
 
 - [Helm 3](https://helm.sh/docs/intro/install/) instalado localmente.
